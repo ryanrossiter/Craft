@@ -1,0 +1,12 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+        "targets": { "chrome":  "63", "edge": "17", "firefox": "61", "safari": "11.1" }
+    }]
+  ],
+  "plugins": [
+    ["babel-plugin-root-import", {
+        "rootPathSuffix": "src"
+    }]
+  ]
+}

@@ -4,6 +4,24 @@ project(craft)
 
 FILE(GLOB SOURCE_FILES src/*.c)
 
+function(JOIN VALUES GLUE OUTPUT)
+    string (REPLACE ";" "${GLUE}" _TMP_STR "${VALUES}")
+    set (${OUTPUT} "${_TMP_STR}" PARENT_SCOPE)
+endfunction()
+
+set(EXPORTED_FUNCTION_LIST
+        init
+        stop
+        run_frame
+        on_left_click
+        on_right_click
+        on_middle_click
+        on_mouse_move
+        action_destroy_block
+        action_create_block)
+
+JOIN("${EXPORTED_FUNCTION_LIST}" "', '_" EXPORTED_FUNCTIONS)
+
 if (EMSCRIPTEN)
     add_executable(
         craft
@@ -30,7 +48,7 @@ add_definitions(-std=c99 -O3)
 
 if (EMSCRIPTEN)
     # Emscripten default is GLFW 2.x but we use GLFW 3.x, also include data files
-    set_target_properties(craft PROPERTIES LINK_FLAGS "-s USE_GLFW=3 --embed-file ../shaders/ -s TOTAL_MEMORY=33554432 --embed-file ../textures/")
+    set_target_properties(craft PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s EXPORTED_FUNCTIONS=\"['_${EXPORTED_FUNCTIONS}']\" -s EXTRA_EXPORTED_RUNTIME_METHODS=\"['cwrap', 'ccall']\" --embed-file ../shaders/ -s TOTAL_MEMORY=33554432 --embed-file ../textures/ --shell-file ../index_shell.html")
 endif ()
 
 if (NOT EMSCRIPTEN)

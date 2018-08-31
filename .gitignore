@@ -1,11 +1,10 @@
 .DS_Store
 Makefile
 CMakeCache.txt
-CMakeFiles
+CMakeFiles/
+cmake-build-debug/
 cmake_install.cmake
 config.py
-craft
-world
 env
 log.txt
 *.o
@@ -13,4 +12,10 @@ log.txt
 *.exe
 *.dll
 *.pyc
+*.cbp
+.idea/
+node_modules/
 
+deps/glfw/src/glfw3Config.cmake
+deps/glfw/src/glfw3ConfigVersion.cmake
+deps/glfw/src/glfw_config.h
