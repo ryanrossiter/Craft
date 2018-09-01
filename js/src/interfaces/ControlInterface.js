@@ -1,13 +1,12 @@
 import Interface from '~/interfaces/Interface';
 
-class ControlInterface extends Interface {
+export default class ControlInterface extends Interface {
     constructor(Module) {
         super(Module, [
             { name: 'init', ret: 'number' },
             { name: 'shutdown' },
-            { name: 'run_frame' }
+            { name: 'run_frame' },
+            { name: 'get_players_mem_location' },
         ])
     }
 }
-
-export default ControlInterface;

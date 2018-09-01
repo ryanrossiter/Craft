@@ -1,28 +1,13 @@
-class ClientCore {
+import Player from '~/entities/Player';
+import PlayerController from '~/PlayerController';
+
+export default class ClientCore {
     constructor(controlInterface, inputInterface) {
         this.controlInterface = controlInterface;
         this.inputInterface = inputInterface;
-        this.canvas = document.querySelector('#canvas');
 
-        this.canvas.addEventListener('mousedown', (evt) => {
-            if (evt.button === 0) {
-                let valid = this.inputInterface.on_left_click();
-                if (valid) {
-                    this.inputInterface.action_destroy_block();
-                }
-            } else if (evt.button === 1) {
-                this.inputInterface.on_middle_click();
-            } else if (evt.button === 2) {
-                var valid = this.inputInterface.on_right_click();
-                if (valid) {
-                    this.inputInterface.action_create_block();
-                }
-            }
-        });
-
-        this.canvas.addEventListener('mousemove', (evt) => {
-            this.inputInterface.on_mouse_move(evt.movementX, evt.movementY);
-        });
+        let player = new Player({}, this.controlInterface.get_players_mem_location());
+        this.playerController = new PlayerController(player, this.inputInterface);
     }
 
     start() {
@@ -31,13 +16,16 @@ class ClientCore {
             throw "Failed to initialize core";
         }
         
-        this.runFrame();
+        this.lastFrame = performance.now();
+        this.runFrame(performance.now());
     }
 
-    runFrame() {
+    runFrame(now) {
+        let delta = now - this.lastFrame;
+        this.lastFrame = now;
+        
+        this.playerController.update(delta);
         this.controlInterface.run_frame();
-        window.requestAnimationFrame(() => this.runFrame());
+        window.requestAnimationFrame((now) => this.runFrame(now));
     }
 }
-
-export default ClientCore;

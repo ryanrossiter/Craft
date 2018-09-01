@@ -1,6 +1,6 @@
 import Interface from '~/interfaces/Interface';
 
-class InputInterface extends Interface {
+export default class InputInterface extends Interface {
     constructor(Module) {
         super(Module, [
             { name: 'on_left_click', ret: 'bool' },
@@ -12,5 +12,3 @@ class InputInterface extends Interface {
         ])
     }
 }
-
-export default InputInterface;

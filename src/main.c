@@ -2309,9 +2309,9 @@ int init() {
 
     glfwMakeContextCurrent(g->window);
     glfwSetInputMode(g->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetKeyCallback(g->window, on_key);
-    glfwSetCharCallback(g->window, on_char);
-    glfwSetScrollCallback(g->window, on_scroll);
+//    glfwSetKeyCallback(g->window, on_key);
+//    glfwSetCharCallback(g->window, on_char);
+//    glfwSetScrollCallback(g->window, on_scroll);
 
     if (glewInit() != GLEW_OK) {
         return -1;
@@ -2439,18 +2439,23 @@ int init() {
     me->name[0] = '\0';
     me->buffer = 0;
     g->player_count = 1;
+    g->fov = 65;
 
     // LOAD STATE FROM DATABASE //
-    int loaded = db_load_state(&s->x, &s->y, &s->z, &s->rx, &s->ry);
-    force_chunks(me);
-    if (!loaded) {
-        s->y = highest_block(s->x, s->z) + 2;
-    }
+//    int loaded = db_load_state(&s->x, &s->y, &s->z, &s->rx, &s->ry);
+//    force_chunks(me);
+//    if (!loaded) {
+//        s->y = highest_block(s->x, s->z) + 2;
+//    }
 
     // init last frame time
     previous = glfwGetTime();
 
     return 0;
+}
+
+Player* get_players_mem_location() {
+    return g->players;
 }
 
 void stop() {
@@ -2485,9 +2490,6 @@ void run_frame() {
     dt = MIN(dt, 0.2);
     dt = MAX(dt, 0.0);
     previous = now;
-
-    // HANDLE MOVEMENT //
-    handle_movement(dt);
 
     // FLUSH DATABASE //
     if (now - last_commit > COMMIT_INTERVAL) {
