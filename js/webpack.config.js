@@ -1,6 +1,8 @@
 const path = require('path');
+const fs = require('fs');
 
 module.exports = {
+    mode: 'development',
     entry: './src/index.js',
     output: {
         filename: 'bundle.js',
@@ -13,9 +15,7 @@ module.exports = {
                 exclude: /node_modules/,
                 use: {
                     loader: "babel-loader",
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
+                    options: JSON.parse(fs.readFileSync(path.resolve(__dirname, '.babelrc')))
                 }
             }
         ]

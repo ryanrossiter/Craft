@@ -1,6 +1,6 @@
 import { extend, mask } from '~/util/ObjectHelpers';
 
-const SerializedObject = (SuperClass, type, SCHEMA, onChangeData, onUpdateData) => {
+const SerializedObject = (SuperClass, type, SCHEMA) => {
     // generate a *unique* data symbol for each class
     let _data = Symbol('data');
     if (!SuperClass) {
@@ -11,12 +11,16 @@ const SerializedObject = (SuperClass, type, SCHEMA, onChangeData, onUpdateData) 
         constructor() {
             super(...arguments);
 
-            if (!onChangeData) {
-                throw "Function onChangeData(key, value) does not exist";
-            }
-
             if (SuperClass !== Object && !super.updateData) {
                 throw "Super class must implement updateData (Should inherit from SerializedObject)";
+            }
+
+            if (SuperClass !== Object && !super.onUpdateData) {
+                throw "Super class must implement onUpdateData (Should inherit from SerializedObject)";
+            }
+
+            if (SuperClass !== Object && !super.onChangeData) {
+                throw "Super class must implement onChangeData (Should inherit from SerializedObject)";
             }
 
             this[_data] = mask({
@@ -27,6 +31,7 @@ const SerializedObject = (SuperClass, type, SCHEMA, onChangeData, onUpdateData) 
             // create getters and setters
             for (let p in this[_data]) {
                 if (p == '_static') continue;
+                let o = this;
                 Object.defineProperty(this, p, {
                     get: () => this[_data][p],
                     set: (v) => {
@@ -35,29 +40,43 @@ const SerializedObject = (SuperClass, type, SCHEMA, onChangeData, onUpdateData) 
                         }
 
                         this[_data][p] = v;
-                        onChangeData.call(this, p, v);
+                        this.onChangeData(p, v);
                     }
                 });
             }
         }
 
-        static get type() { return type; }
+        get type() { return type; }
 
         toData() {
             return {
                 ...(super.toData? super.toData() : {}),
                 ...mask(SCHEMA, this[_data], true)
             }
-        };
+        }
 
-        updateData(data, now) {
-            super.updateData(data, now);
+        updateData(data) {
             this[_data] = mask(this[_data], data);
 
-            if (onUpdateData) {
-                onUpdateData.call(this, data, now);
+            if (SuperClass !== Object) {
+                super.updateData(...arguments);
+            } else {
+                // Only invoke callback in top-level class (after all data has been updated)
+                this.onUpdateData();
             }
-        };
+        }
+
+        onUpdateData() {
+            if (SuperClass !== Object) {
+                super.onUpdateData();
+            }
+        }
+
+        onChangeData(k, v) {
+            if (SuperClass !== Object) {
+                super.onChangeData(...arguments);
+            }
+        }
     }
 }
 

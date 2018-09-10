@@ -13,11 +13,13 @@ set(EXPORTED_FUNCTION_LIST
         init
         stop
         run_frame
+        get_model_mem_location
         get_players_mem_location
+        get_workers_mem_location
+        get_chunks_mem_location
         on_left_click
         on_right_click
         on_middle_click
-        on_mouse_move
         action_destroy_block
         action_create_block)
 

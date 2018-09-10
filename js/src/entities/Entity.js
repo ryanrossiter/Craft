@@ -14,6 +14,7 @@ export default class Entity extends SerializedObject(null,
 
         this.dirty = false;
         this.deleted = false;
+        this.clientControlled = false;
     }
 
     serverUpdate() {}
