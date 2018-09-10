@@ -2,6 +2,7 @@ import ServerPlugin from '~/network/ServerPlugin';
 
 export default class PlayerPlugin extends ServerPlugin {
     constructor(onPlayerJoin) {
+        super();
         this.players = {};
 
         this.onPlayerJoin = onPlayerJoin;

@@ -3,10 +3,9 @@ export default class ServerPlugin {
         this.emit = null;
     }
 
-    onAddToServer(registerHandler, emit) {
-        this.emit = emit;
+    onAddToServer(registerHandler) {
         this.registerHandlers(...arguments);
     }
 
-    registerHandlers(registerHandler, emit) { /* override in child class */ }
+    registerHandlers(registerHandler) { /* override in child class */ }
 }

@@ -31,7 +31,7 @@ export default class ClientCore {
         this.server.addPlugin(this.time);
         this.server.addPlugin(this.players);
         this.server.addPlugin(this.entities);
-        this.server.start();
+        this.server.init();
 
         this.clientCorePlugin.join();
     }

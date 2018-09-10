@@ -2,11 +2,12 @@ import ServerPlugin from '~/network/ServerPlugin';
 
 export default class TimeKeeperPlugin extends ServerPlugin {
     constructor() {
+        super();
         this.timeDiff = 0;   
     }
 
     get now() {
-        return performance.now() - this.timeDiff;
+        return Date.now() - this.timeDiff;
     }
 
     registerHandlers(registerHandler, emit, serverConfig) {

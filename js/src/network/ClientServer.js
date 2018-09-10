@@ -12,22 +12,22 @@ export default class ClientServer extends Server {
             ...config
         });
 
-        this.addPlugin(new ServerLogPlugin());
-    }
-
-    createConnection() {
-        return io({
+        this.socket = io({
             port: Defs.PORT,
             transports: ["websocket"],
             autoConnect: false
         });
+
+        this.addPlugin(new ServerLogPlugin());
     }
 
-    startConnection() {
+    addPlugin(plugin) {
+        plugin.emit = this.socket.emit;
+        super.addPlugin(plugin);
+    }
+
+    init() {
         this.socket.open();
-    }
-
-    stopConnection() {
-        this.socket.close();
+        super.registerHandlersOnSocket(this.socket);
     }
 }

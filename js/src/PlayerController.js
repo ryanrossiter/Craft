@@ -1,4 +1,4 @@
-import CANNON from 'CANNON';
+import CANNON from 'cannon';
 let { Vec3 } = CANNON;
 
 const SPEED = 0.01;

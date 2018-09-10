@@ -2,6 +2,7 @@ import ServerPlugin from '~/network/ServerPlugin';
 
 export default class ClientCorePlugin extends ServerPlugin {
     constructor(clientCore) {
+        super();
         this.clientCore = clientCore;
         this.players = {};
     }

@@ -10,16 +10,18 @@ export default class MasterServer extends Server {
         super(config);
 
         this.addPlugin(new ServerLogPlugin());
-    }
 
-    createSocket() {
-        return new IO(Defs.PORT, {
+        this.io = new IO({
             transports: ["websocket"],
             serveClient: false
         });
     }
 
-    stopConnection() {
-        this.socket.close();
+    init() {
+        this.io.on('connect', (socket) => {
+            this.registerHandlersOnSocket(socket);
+        });
+
+        this.io.listen(Defs.PORT); // start listening
     }
 }

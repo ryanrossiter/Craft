@@ -1,9 +1,10 @@
 import ServerPlugin from '~/network/ServerPlugin';
 import { generateUuid } from '~/util/UUID';
 
-export default class ServerCorePlugin extends ServerPlugin {
-    constructor(clientCore) {
-        this.clientCore = clientCore;
+export default class MasterCorePlugin extends ServerPlugin {
+    constructor(masterCore) {
+        super();
+        this.masterCore = masterCore;
         this.players = {};
     }
 

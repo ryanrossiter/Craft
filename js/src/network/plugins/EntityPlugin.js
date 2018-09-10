@@ -4,6 +4,7 @@ import ClientPlayer from '~/entities/client/ClientPlayer';
 
 export default class EntityPlugin extends ServerPlugin {
     constructor(time, onCreateEntity) {
+        super();
         this.time = time;
         this.onCreateEntity = onCreateEntity;
         this.entities = {};
