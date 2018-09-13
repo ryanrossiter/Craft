@@ -4,10 +4,9 @@ import ClientModel from '~/ClientModel';
 import PlayerController from '~/PlayerController';
 
 import ClientServer from '~/network/ClientServer';
-import ClientCorePlugin from '~/network/plugins/ClientCorePlugin';
-import TimeKeeperPlugin from '~/network/plugins/TimeKeeperPlugin';
-import PlayerPlugin from '~/network/plugins/PlayerPlugin';
-import EntityPlugin from '~/network/plugins/EntityPlugin';
+import ClientCorePlugin from '~/network/plugins/client/ClientCorePlugin';
+import TimeKeeperPlugin from '~/network/plugins/client/TimeKeeperPlugin';
+import EntityPlugin from '~/network/plugins/client/EntityPlugin';
 
 export default class ClientCore {
     constructor(controlInterface, inputInterface) {
@@ -17,19 +16,17 @@ export default class ClientCore {
             playerId: undefined
         };
 
-        this.model = new ClientModel(this.controlInterface.get_model_mem_location());
-        this.player = new ClientPlayer({});
-        this.playerController = new PlayerController(this.player, this.inputInterface);
+        this.model = new ClientModel();
+        this.model.assignMemory(this.controlInterface.get_model_mem_location());
+        this.playerController = null;
 
         this.server = new ClientServer();
         this.clientCorePlugin = new ClientCorePlugin(this);
         this.time = new TimeKeeperPlugin();
-        this.players = new PlayerPlugin();
-        this.entities = new EntityPlugin(this.time, (e) => onCreateEntity(e));
+        this.entities = new EntityPlugin(this.time, (e) => this.onCreateEntity(e));
 
         this.server.addPlugin(this.clientCorePlugin);
         this.server.addPlugin(this.time);
-        this.server.addPlugin(this.players);
         this.server.addPlugin(this.entities);
         this.server.init();
 
@@ -38,15 +35,21 @@ export default class ClientCore {
 
     onJoin(playerId) {
         this.state.playerId = playerId;
+        console.log("Joined server.");
     }
 
     onCreateEntity(entity) {
         if (entity.type === EntityTypes.PLAYER) {
-            if (entity.id === this.state.playerId) {
+            if (entity.player === this.state.playerId) {
                 entity.clientControlled = true;
-                entity.assignMemoryPosition(this.model.getMemoryPosition('players'));
+                entity.assignMemory(this.model.getMemoryPosition('players'));
+                entity.refreshData();
+
+                this.playerController = new PlayerController(entity, this.inputInterface);
             } else {
-                //entity.assignMemoryPosition(this.controlInterface.get_empty_player_mem_location());
+                console.log("Created other player");
+                entity.assignMemory(this.controlInterface.get_unused_player_mem_location());
+                entity.refreshData();
             }
         }
     }
@@ -85,7 +88,7 @@ export default class ClientCore {
 
         this.entities.update();
         
-        this.playerController.update(delta);
+        if (this.playerController) this.playerController.update(delta);
         this.controlInterface.run_frame();
         window.requestAnimationFrame((now) => this.runFrame(now));
     }

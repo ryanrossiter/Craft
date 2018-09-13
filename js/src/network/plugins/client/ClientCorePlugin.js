@@ -12,11 +12,11 @@ export default class ClientCorePlugin extends ServerPlugin {
     }
 
     registerHandlers(registerHandler) {
-        registerHandler('client.join', ({ playerId, name }) => {
+        registerHandler('client.join', (socket, { playerId, name }) => {
             this.players[playerId] = { name };
         });
 
-        registerHandler('client.leave', ({ playerId }) => {
+        registerHandler('client.leave', (socket, { playerId }) => {
             delete this.players[playerId];
         });
     }

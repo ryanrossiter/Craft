@@ -11,7 +11,7 @@ export default class TimeKeeperPlugin extends ServerPlugin {
     }
 
     registerHandlers(registerHandler, emit, serverConfig) {
-        registerHandler('core.update', ({ time }) => {
+        registerHandler('core.update', (socket, { time }) => {
             this.timeDiff = (this.timeDiff + Date.now() - time) / 2; // 2 step rolling average
         });
     }

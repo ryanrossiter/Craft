@@ -2,14 +2,17 @@ import EntityTypes from '~/entities/EntityTypes';
 import Defs from '~/Defs';
 
 import MasterServer from '~/network/MasterServer';
-import MasterCorePlugin from '~/network/plugins/MasterCorePlugin';
+import MasterCorePlugin from '~/network/plugins/master/MasterCorePlugin';
+import EntityPlugin from '~/network/plugins/master/EntityPlugin';
 
 export default class MasterCore {
     constructor() {
         this.server = new MasterServer();
         this.masterCorePlugin = new MasterCorePlugin(this);
+        this.entities = new EntityPlugin();
 
         this.server.addPlugin(this.masterCorePlugin);
+        this.server.addPlugin(this.entities);
         this.server.init();
     }
 
@@ -22,6 +25,7 @@ export default class MasterCore {
         let delta = now - this.lastUpdate;
         this.lastUpdate = now;
 
-        // do updates
+        this.entities.update();
+        this.entities.sendUpdates();
     }
 }

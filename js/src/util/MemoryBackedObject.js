@@ -75,9 +75,12 @@ const MemoryBackedObject = (SuperClass, STRUCT) => {
             this.memPos = null;
         }
 
-        assignMemoryPosition(memPos) {
+        assignMemory(memPos) {
             this.memPos = memPos;
+            this.initMemory();
         }
+
+        initMemory() { /* Override in child class */ }
 
         get size() {
             return size;

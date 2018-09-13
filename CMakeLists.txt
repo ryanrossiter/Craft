@@ -15,6 +15,7 @@ set(EXPORTED_FUNCTION_LIST
         run_frame
         get_model_mem_location
         get_players_mem_location
+        get_unused_player_mem_location
         get_workers_mem_location
         get_chunks_mem_location
         on_left_click

@@ -15,22 +15,25 @@ export default class EntityPlugin extends ServerPlugin {
     }
 
     registerHandlers(registerHandler) {
-        registerHandler('entity.update', ({ entityData }) => {
+        registerHandler('entity.update', (socket, { entityData }) => {
             for (let data of entityData) {
                 if (this.entities.hasOwnProperty(data.id)) {
-                    this.entities[data.id].dataUpdate(data, this.time.now);
+                    if (this.entities[data.id].clientControlled === true) continue;
+                    this.entities[data.id].updateData(data, true);
                 } else {
                     if (data.type in this.entityFactory) {
                         let EntityClass = this.entityFactory[data.type];
                         let entity = new EntityClass(data);
                         this.entities[data.id] = entity;
                         this.onCreateEntity(entity);
+                    } else {
+                        throw `Unregistered entity type ${data.type}.`;
                     }
                 }
             }
         });
 
-        registerHandler('entity.delete', ({ entityIds }) => {
+        registerHandler('entity.delete', (socket, { entityIds }) => {
             for (let id of entityIds) {
                 if (this.entities.hasOwnProperty(id)) {
                     this.entities[id].onDelete();
@@ -41,7 +44,7 @@ export default class EntityPlugin extends ServerPlugin {
     }
 
     update() {
-        for (let e of this.entities) {
+        for (let e of Object.values(this.entities)) {
             e.clientUpdate();
             if (e.clientControlled) {
                 this.sendUpdate(e);
@@ -50,9 +53,9 @@ export default class EntityPlugin extends ServerPlugin {
     }
 
     sendUpdate(entity) {
-        this.emit('entity.update', e.toData(), (data) => {
+        this.emit('entity.update', { entityData: [entity.toData()] }, (data) => {
             // The server might return a correction
-            if (data) e.dataUpdate(data, this.time.now);
+            if (data) entity.dataUpdate(data, this.time.now);
         });
     }
 

@@ -12,8 +12,7 @@ export default class ClientServer extends Server {
             ...config
         });
 
-        this.socket = io({
-            port: Defs.PORT,
+        this.socket = io(`http://${window.location.hostname}:${Defs.PORT}`, {
             transports: ["websocket"],
             autoConnect: false
         });
@@ -22,7 +21,7 @@ export default class ClientServer extends Server {
     }
 
     addPlugin(plugin) {
-        plugin.emit = this.socket.emit;
+        plugin.emit = this.socket.emit.bind(this.socket);
         super.addPlugin(plugin);
     }
 

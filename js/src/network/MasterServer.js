@@ -9,12 +9,17 @@ export default class MasterServer extends Server {
     constructor(config) {
         super(config);
 
-        this.addPlugin(new ServerLogPlugin());
-
         this.io = new IO({
             transports: ["websocket"],
             serveClient: false
         });
+
+        this.addPlugin(new ServerLogPlugin());
+    }
+
+    addPlugin(plugin) {
+        plugin.emit = this.io.emit.bind(this.io);
+        super.addPlugin(plugin);
     }
 
     init() {

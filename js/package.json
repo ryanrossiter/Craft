@@ -5,17 +5,18 @@
   "scripts": {
     "build": "webpack",
     "builder": "webpack --watch",
-    "build-server": "webpack --config webpack.server.config.js",
-    "server": "node dist/server-bundle.js"
+    "server-build": "webpack --config webpack.server.config.js",
+    "server-builder": "webpack --config webpack.server.config.js --watch",
+    "server": "nodemon dist/server-bundle.js"
   },
   "author": "Ryan Rossiter",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "babel-loader": "^8.0.0",
     "babel-plugin-root-import": "^6.1.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.1.0",
     "webpack-node-externals": "^1.7.2"

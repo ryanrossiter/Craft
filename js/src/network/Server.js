@@ -13,19 +13,27 @@ export default class Server {
 
     addPlugin(plugin) {
         this.plugins.push(plugin);
-        plugin.onAddToServer((key, handler) => {
+        plugin.registerHandlers((key, handler) => {
+            let _handler = (...args) => {
+                try { handler(...args); }
+                catch (e) {
+                    console.error(`Error in socket handler ${key} from plugin ${plugin.constructor.name}:`);
+                    console.error(e.stack);
+                }
+            };
+
             if (key in this.handlers) {
-                this.handlers[key].push(handler);
+                this.handlers[key].push(_handler);
             } else {
-                this.handlers[key] = [handler];
+                this.handlers[key] = [_handler];
             }
-        });
+        }, this.config);
     }
 
     registerHandlersOnSocket(socket) {
         for (let key in this.handlers) {
             for (let handler of this.handlers[key]) {
-                socket.on(key, handler);
+                socket.on(key, (...args) => handler(socket, ...args));
             }
         }
     }

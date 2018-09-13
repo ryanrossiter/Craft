@@ -51,12 +51,23 @@ const SerializedObject = (SuperClass, type, SCHEMA) => {
         toData() {
             return {
                 ...(super.toData? super.toData() : {}),
-                ...mask(SCHEMA, this[_data], true)
+                ...mask(SCHEMA, this[_data], true),
+                type
             }
         }
 
-        updateData(data) {
+        refreshData() {
+            this.updateData(this.toData(), true);
+        }
+
+        updateData(data, triggerCallbacks=false) {
             this[_data] = mask(this[_data], data);
+
+            if (triggerCallbacks === true) {
+                for (let k in this[_data]) {
+                    this.onChangeData(k, this[k]);
+                }
+            }
 
             if (SuperClass !== Object) {
                 super.updateData(...arguments);

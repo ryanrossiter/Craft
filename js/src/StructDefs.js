@@ -28,6 +28,7 @@ export const ChunkStruct = [
     { name: 'faces', type: 'i32' },
     { name: 'sign_faces', type: 'i32' },
     { name: 'dirty', type: 'i32' },
+    { name: 'active', type: 'i32' },
     { name: 'miny', type: 'i32' },
     { name: 'maxy', type: 'i32' },
     { name: 'map', type: 'struct', struct: MapStruct },
@@ -56,7 +57,6 @@ export const PlayerStruct = [
 export const ClientModelStruct = [
     { name: 'chunks', type: 'struct', length: 8192, struct: ChunkStruct },
     { name: 'players', type: 'struct', length: 128, struct: PlayerStruct },
-    { name: 'chunk_count', type: 'i32' },
     { name: 'create_radius', type: 'i32' },
     { name: 'render_radius', type: 'i32' },
     { name: 'delete_radius', type: 'i32' },
