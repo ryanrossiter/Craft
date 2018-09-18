@@ -88,6 +88,8 @@ const MemoryBackedObject = (SuperClass, STRUCT) => {
 
         getMemoryPosition(k) {
             if (this.memPos === null) return null;
+            if (k === undefined) return this.memPos;
+            
             return getFieldData(memData, this.memPos, k).pos;
         }
 

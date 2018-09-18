@@ -7,6 +7,10 @@ const SerializedObject = (SuperClass, type, SCHEMA) => {
         SuperClass = Object;
     }
 
+    if (SCHEMA === undefined) {
+        throw "SCHEMA can't be undefined";
+    }
+
     return class extends SuperClass {
         constructor() {
             super(...arguments);

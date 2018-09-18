@@ -8,13 +8,21 @@ import ClientCorePlugin from '~/network/plugins/client/ClientCorePlugin';
 import TimeKeeperPlugin from '~/network/plugins/client/TimeKeeperPlugin';
 import EntityPlugin from '~/network/plugins/client/EntityPlugin';
 
+import ChunkManager from '~/world/ChunkManager';
+import GenChunkLoader from '~/world/GenChunkLoader';
+
 export default class ClientCore {
-    constructor(controlInterface, inputInterface) {
+    constructor(controlInterface, inputInterface, worldInterface) {
         this.controlInterface = controlInterface;
         this.inputInterface = inputInterface;
+        this.worldInterface = worldInterface;
         this.state = {
             playerId: undefined
         };
+
+        this.chunkManager = new ChunkManager(worldInterface,
+            new GenChunkLoader(worldInterface)
+        );
 
         this.model = new ClientModel();
         this.model.assignMemory(this.controlInterface.get_model_mem_location());
@@ -60,24 +68,6 @@ export default class ClientCore {
             throw "Failed to initialize core";
         }
 
-        // setTimeout(() => {
-        //     console.log("Swapping chunks...");
-        //     let chunk0 = new Chunk(this.model.getMemoryPosition('chunks'));
-        //     let chunk1 = new Chunk(this.model.getMemoryPosition('chunks') + chunk0.size);
-        //     let c0p = chunk0.getMemoryValue('p'), c0q = chunk0.getMemoryValue('q');
-        //     let c1p = chunk1.getMemoryValue('p'), c1q = chunk1.getMemoryValue('q');
-        //     chunk1.setMemoryValue('p', c0p);
-        //     chunk1.setMemoryValue('q', c0q);
-        //     chunk1.setMemoryValue('map.dx', c0p * 32 - 1);
-        //     chunk1.setMemoryValue('map.dz', c0q * 32 - 1);
-        //     chunk0.setMemoryValue('p', c1p);
-        //     chunk0.setMemoryValue('q', c1q);
-        //     chunk0.setMemoryValue('map.dx', c1p * 32 - 1);
-        //     chunk0.setMemoryValue('map.dz', c1q * 32 - 1);
-        //     chunk0.setMemoryValue('dirty', 1);
-        //     chunk1.setMemoryValue('dirty', 1);
-        // }, 3000);
-
         this.lastFrame = performance.now();
         window.requestAnimationFrame((now) => this.runFrame(now));
     }
@@ -88,7 +78,13 @@ export default class ClientCore {
 
         this.entities.update();
         
-        if (this.playerController) this.playerController.update(delta);
+        if (this.playerController) {
+            this.chunkManager.ensureChunks(
+                this.playerController.player.x,
+                this.playerController.player.z
+            );
+            this.playerController.update(delta);
+        }
         this.controlInterface.run_frame();
         window.requestAnimationFrame((now) => this.runFrame(now));
     }

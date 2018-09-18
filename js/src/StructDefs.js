@@ -55,7 +55,7 @@ export const PlayerStruct = [
 ];
 
 export const ClientModelStruct = [
-    { name: 'chunks', type: 'struct', length: 8192, struct: ChunkStruct },
+    { name: 'chunks', type: 'struct', length: 4096, struct: ChunkStruct },
     { name: 'players', type: 'struct', length: 128, struct: PlayerStruct },
     { name: 'create_radius', type: 'i32' },
     { name: 'render_radius', type: 'i32' },
