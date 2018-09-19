@@ -5,9 +5,7 @@ export default class InputInterface extends Interface {
         super(Module, [
             { name: 'on_left_click', ret: 'bool' },
             { name: 'on_right_click', ret: 'bool' },
-            { name: 'on_middle_click' },
-            { name: 'action_create_block' },
-            { name: 'action_destroy_block' }
+            { name: 'on_middle_click' }
         ])
     }
 }

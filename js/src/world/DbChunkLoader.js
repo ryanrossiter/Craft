@@ -10,7 +10,8 @@ export default class DbChunkLoader extends GenChunkLoader {
 
     async loadChunk(chunk) {
         // check if in store, if not generate new chunk
-        let chunkData = await this.worldStore.loadChunk(chunk.p, chunk.q);
+        let chunkData = await this.worldStore.loadChunk(chunk.p, chunk.q, chunk.r);
+
         if (chunkData) {
             chunk.updateData(chunkData);
         } else {

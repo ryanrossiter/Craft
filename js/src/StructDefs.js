@@ -25,10 +25,9 @@ export const MapStruct = [
 export const ChunkStruct = [
     { name: 'p', type: 'i32' },
     { name: 'q', type: 'i32' },
+    { name: 'r', type: 'i32' },
     { name: 'active', type: 'i32' },
     { name: 'dirty', type: 'i32' },
-    { name: 'miny', type: 'i32' },
-    { name: 'maxy', type: 'i32' },
     { name: 'map', type: 'struct', struct: MapStruct },
     { name: 'lights', type: 'struct', struct: MapStruct },
     { name: 'signs', type: 'struct', struct: SignListStruct }

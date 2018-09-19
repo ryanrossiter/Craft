@@ -1,7 +1,8 @@
 #include "world.h"
 
-void create_world(int p, int q, world_func func, void *arg) {
+void create_world(int p, int q, int r, world_func func, void *arg) {
     int pad = 1;
+    int by = r * CHUNK_SIZE;
     for (int dx = -pad; dx < CHUNK_SIZE + pad; dx++) {
         for (int dz = -pad; dz < CHUNK_SIZE + pad; dz++) {
             int flag = 1;
@@ -21,7 +22,7 @@ void create_world(int p, int q, world_func func, void *arg) {
                 w = 2;
             }
             // sand and grass terrain
-            for (int y = 0; y < h; y++) {
+            for (int y = by; y < h; y++) {
                 func(x, y, z, w * flag, arg);
             }
             if (w == 1) {
@@ -61,7 +62,7 @@ void create_world(int p, int q, world_func func, void *arg) {
                 }
             }
             // clouds
-            if (SHOW_CLOUDS) {
+            if (SHOW_CLOUDS && by + CHUNK_SIZE >= 64 && by - CHUNK_SIZE < 72) {
                 for (int y = 64; y < 72; y++) {
                     if (simplex3(
                         x * 0.01, y * 0.1, z * 0.01, 8, 0.5, 2) > 0.75)

@@ -1,3 +1,4 @@
+import { chunked } from '~/world/ChunkUtils';
 import CANNON from 'cannon';
 let { Vec3 } = CANNON;
 
@@ -46,26 +47,26 @@ export default class PlayerController {
         if (evt.button === 0) {
             let valid = this.inputInterface.on_left_click();
             if (valid) {
-                this.clientCore.world.modifyBlock(
-                    this.clientCore.model.getMemoryValue('px'),
-                    this.clientCore.model.getMemoryValue('py'),
-                    this.clientCore.model.getMemoryValue('pz'),
-                    0, 0);
+                let x = this.clientCore.model.getMemoryValue('px');
+                let y = this.clientCore.model.getMemoryValue('py');
+                let z = this.clientCore.model.getMemoryValue('pz');
+                this.clientCore.world.modifyBlock(x, y, z, 0, 0);
 
-                this.inputInterface.action_destroy_block();
+                let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
+                chunk.setBlock(x, y, z, 0, 0);
             }
         } else if (evt.button === 1) {
             this.inputInterface.on_middle_click();
         } else if (evt.button === 2) {
             var valid = this.inputInterface.on_right_click();
             if (valid) {
-                this.clientCore.world.modifyBlock(
-                    this.clientCore.model.getMemoryValue('px'),
-                    this.clientCore.model.getMemoryValue('py'),
-                    this.clientCore.model.getMemoryValue('pz'),
-                    0, 1);//this.clientCore.model.getMemoryValue('item_index'));
+                let x = this.clientCore.model.getMemoryValue('px');
+                let y = this.clientCore.model.getMemoryValue('py');
+                let z = this.clientCore.model.getMemoryValue('pz');
+                this.clientCore.world.modifyBlock(x, y, z, 0, 1);
 
-                this.inputInterface.action_create_block();
+                let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
+                chunk.setBlock(x, y, z, 0, 1);
             }
         }
     }

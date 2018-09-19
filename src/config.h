@@ -44,14 +44,10 @@
 #define CRAFT_KEY_SIGN '`'
 
 // advanced parameters
-#define CREATE_CHUNK_RADIUS 10
-#define RENDER_CHUNK_RADIUS 9
+#define WORKER_CHUNK_RADIUS 5
+#define RENDER_CHUNK_RADIUS 4
 #define RENDER_SIGN_RADIUS 1
-#define DELETE_CHUNK_RADIUS 12
 #define CHUNK_SIZE 32
 #define COMMIT_INTERVAL 5
-
-_Static_assert(CREATE_CHUNK_RADIUS < DELETE_CHUNK_RADIUS,
-        "CREATE_CHUNK_RADIUS must be < DELETE_CHUNK_RADIUS or else bad things will happen!");
 
 #endif

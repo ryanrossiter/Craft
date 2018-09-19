@@ -9,7 +9,7 @@ export default class WorldPlugin extends ServerPlugin {
 
     registerHandlers(registerHandler) {
         registerHandler('block.update', (socket, { x, y, z, state, w }) => {
-            let key = chunkKey(chunked(x), chunked(z));
+            let key = chunkKey(chunked(x), chunked(z), chunked(y));
             if (key in this.chunkSubs) {
                 this.chunkSubs[key].setBlock(x, y, z, state, w);
             }
@@ -17,10 +17,10 @@ export default class WorldPlugin extends ServerPlugin {
     }
 
     chunkSub(chunk) {
-        this.chunkSubs[chunkKey(chunk.p, chunk.q)] = chunk;
+        this.chunkSubs[chunkKey(chunk.p, chunk.q, chunk.r)] = chunk;
 
         this.emit('chunk.sub', {
-            p: chunk.p, q: chunk.q
+            p: chunk.p, q: chunk.q, r: chunk.r
         }, (data) => {
             if (!data) throw Error("Didn't receive chunk data");
             chunk.updateData(data);
@@ -28,10 +28,10 @@ export default class WorldPlugin extends ServerPlugin {
     }
 
     chunkUnsub(chunk) {
-        delete this.chunkSubs[chunkKey(chunk.p, chunk.q)];
-
+        delete this.chunkSubs[chunkKey(chunk.p, chunk.q, chunk.r)];
+        
         this.emit('chunk.unsub', {
-            p: chunk.p, q: chunk.q
+            p: chunk.p, q: chunk.q, r: chunk.r
         });
     }
 

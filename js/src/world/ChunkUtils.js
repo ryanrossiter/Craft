@@ -1,7 +1,7 @@
 import Defs from '~/Defs';
 
-export function chunkKey(p, q) {
-    return `${p}-${q}`;
+export function chunkKey(p, q, r) {
+    return `${p}:${q}:${r}`;
 }
 
 export function chunked(n) {

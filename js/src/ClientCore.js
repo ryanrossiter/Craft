@@ -89,6 +89,7 @@ export default class ClientCore {
             if (this.chunkManager) {
                 this.chunkManager.ensureChunks(
                     this.playerController.player.x,
+                    this.playerController.player.y,
                     this.playerController.player.z
                 );
             }

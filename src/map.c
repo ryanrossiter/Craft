@@ -29,7 +29,12 @@ void map_alloc(Map *map, int dx, int dy, int dz, int mask) {
 }
 
 void map_free(Map *map) {
-    free(map->data);
+    if (map->data) {
+        free(map->data);
+        map->data = 0;
+    } else {
+        printf("Caught map double-free\n");
+    }
 }
 
 void map_copy(Map *dst, Map *src) {

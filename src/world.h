@@ -9,10 +9,9 @@
 typedef struct {
     int p;
     int q;
+    int r;
     int active;
     int dirty;
-    int miny;
-    int maxy;
     Map map;
     Map lights;
     SignList signs;
@@ -20,6 +19,6 @@ typedef struct {
 
 typedef void (*world_func)(int, int, int, int, void *);
 
-void create_world(int p, int q, world_func func, void *arg);
+void create_world(int p, int q, int r, world_func func, void *arg);
 
 #endif

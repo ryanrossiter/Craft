@@ -26,7 +26,6 @@ set(EXPORTED_FUNCTION_LIST
         get_players_mem_location
         get_unused_player_mem_location
         get_workers_mem_location
-        get_chunks_mem_location
         get_unused_chunk_mem_location
         find_chunk
         init_chunk
@@ -34,9 +33,7 @@ set(EXPORTED_FUNCTION_LIST
         gen_chunk
         on_left_click
         on_right_click
-        on_middle_click
-        action_destroy_block
-        action_create_block)
+        on_middle_click)
 
 SET(WORLD_INTERFACE_FUNCTION_LIST
         find_chunk
