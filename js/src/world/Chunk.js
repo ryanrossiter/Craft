@@ -1,24 +1,15 @@
+import Defs from '~/Defs';
 import SerializedObject from '~/util/SerializedObject';
 import MemoryBackedObject from '~/util/MemoryBackedObject';
 import { ChunkStruct } from '~/StructDefs';
 
 const MAPENTRY_SIZE = 2;
 
-// To create chunk:
-// 1. get_unused_chunk_mem_location
-// 2. init_chunk
-// OR 1/2. find_chunk
-
-// 3. load chunk data
-// 4. dirty_chunk
-
 export default class Chunk extends MemoryBackedObject(SerializedObject(Object, 'CHUNK', {
     p: 0, q: 0
 }), ChunkStruct) {
     constructor() {
         super(...arguments);
-    }
-    initMemory() {
     }
 
     getMap() {
@@ -32,10 +23,34 @@ export default class Chunk extends MemoryBackedObject(SerializedObject(Object, '
         }
     }
 
+    setBlock(x, y, z, state, w) {
+        let index = (x - this.p * Defs.CHUNK_SIZE) + y * Defs.CHUNK_SIZE
+            + (z - this.q * Defs.CHUNK_SIZE) * Defs.CHUNK_SIZE * Defs.CHUNK_SIZE;
+
+        if (index < 0 || index >= Math.pow(Defs.CHUNK_SIZE, 3)) throw Error("Chunk index OOB");
+
+        this.getMap().set([state, w], index * MAPENTRY_SIZE);
+        this.dirty();
+    }
+
+    dirty() {
+        this.setMemoryValue('dirty', 1);
+    }
+
     toData() {
+        let map = this.getMap();
         return {
             ...super.toData(),
-            map: this.getMap()
+            map: map.buffer.slice(map.byteOffset, map.byteOffset + map.byteLength)
+        }
+    }
+
+    updateData(data) {
+        super.updateData(...arguments);
+
+        if (data.hasOwnProperty('map')) {
+            this.getMap().set(new Uint8Array(data.map));
+            this.dirty();
         }
     }
 }

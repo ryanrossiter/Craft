@@ -7,11 +7,11 @@ import EntityPlugin from '~/network/plugins/master/EntityPlugin';
 import WorldPlugin from '~/network/plugins/master/WorldPlugin';
 
 export default class MasterCore {
-    constructor() {
+    constructor(worldInterface) {
         this.server = new MasterServer();
         this.masterCorePlugin = new MasterCorePlugin(this);
         this.entities = new EntityPlugin();
-        this.world = new WorldPlugin();
+        this.world = new WorldPlugin(worldInterface);
 
         this.server.addPlugin(this.masterCorePlugin);
         this.server.addPlugin(this.entities);

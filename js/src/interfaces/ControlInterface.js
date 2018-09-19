@@ -10,7 +10,6 @@ export default class ControlInterface extends Interface {
             { name: 'get_unused_player_mem_location' },
             { name: 'get_players_mem_location' },
             { name: 'get_workers_mem_location' },
-            { name: 'get_chunks_mem_location' },
         ])
     }
 }

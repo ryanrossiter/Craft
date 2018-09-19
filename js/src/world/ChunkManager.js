@@ -1,7 +1,6 @@
 import Defs from '~/Defs';
 import Chunk from '~/world/Chunk';
-
-const chunkKey = (p, q) => `${p}-${q}`;
+import { chunkKey } from '~/world/ChunkUtils';
 
 export default class ChunkManager {
     constructor(worldInterface, chunkLoader) {
@@ -10,36 +9,36 @@ export default class ChunkManager {
         this.chunks = {};
     }
 
-    // loads chunks around x/z position
-    ensureChunks(x, z) {
-        let p = Math.floor(x / Defs.CHUNK_SIZE);
-        let q = Math.floor(z / Defs.CHUNK_SIZE);
-        for (let dp = -Defs.CREATE_CHUNK_RADIUS; dp <= Defs.CREATE_CHUNK_RADIUS; dp++) {
-            for (let dq = -Defs.CREATE_CHUNK_RADIUS; dq <= Defs.CREATE_CHUNK_RADIUS; dq++) {
-                let a = p + dp;
-                let b = q + dq;
-                if (chunkKey(a, b) in this.chunks) continue;
-
-                let chunk = this._createChunk(a, b);
-                this.chunks[chunkKey(a, b)] = chunk;
-
-                this.chunkLoader.loadChunk(chunk);
-                chunk.setMemoryValue('dirty', 1);
-            }
-        }
-
-        for (let chunk of Object.values(this.chunks)) {
-            if (Math.abs(p - chunk.p) >= Defs.DELETE_CHUNK_RADIUS
-                || Math.abs(q - chunk.q) >= Defs.DELETE_CHUNK_RADIUS) {
-                // delete the chunk
-                this.chunkLoader.unloadChunk(chunk);
-                this._deleteChunk(chunk);
-                delete this.chunks[chunkKey(chunk.p, chunk.q)];
-            }
-        }
+    containsChunk(p, q) {
+        return chunkKey(p, q) in this.chunks;
     }
 
-    _createChunk(p, q) {
+    getChunk(p, q) {
+        return this.chunks[chunkKey(p, q)];
+    }
+
+    getChunkByChunkKey(key) {
+        return this.chunks[key];
+    }
+
+    removeChunk(chunk) {
+        if (!this.containsChunk(chunk.p, chunk.q)) throw Error("Chunk does not exist");
+
+        this.chunkLoader.unloadChunk(chunk);
+        this._deleteChunk(chunk);
+        delete this.chunks[chunkKey(chunk.p, chunk.q)];
+    }
+
+    async createChunk(p, q) {
+        if (this.containsChunk(p, q)) throw Error("Chunk already exists");
+
+        let chunk = this._initChunk(p, q);
+        this.chunks[chunkKey(p, q)] = chunk;
+        await this.chunkLoader.loadChunk(chunk);
+        return chunk;
+    }
+
+    _initChunk(p, q) {
         let mem = this.worldInterface.get_unused_chunk_mem_location();
         this.worldInterface.init_chunk(mem, p, q);
 

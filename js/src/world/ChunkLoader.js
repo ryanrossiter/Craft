@@ -1,7 +1,7 @@
 export default class ChunkLoader {
     constructor() {}
 
-    loadChunk(chunk) {}
+    async loadChunk(chunk) {}
 
     unloadChunk(chunk) {}
 }

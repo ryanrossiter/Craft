@@ -15,14 +15,22 @@ export default class WorldStore {
             CREATE TABLE Chunks (
                 p INTEGER,
                 q INTEGER,
-                dx INTGER,
-                dy INTEGER,
-                dz INTEGER,
+                map BLOB,
                 PRIMARY KEY (p, q)
             );
             `, (err) => {
                 if (err) throw err;
             });
+    }
+
+    containsChunk(p, q) {
+        return new Promise((resolve, reject) => {
+            this.db.get(`SELECT EXISTS(SELECT 1 FROM Chunks WHERE p = ? AND q = ?) AS 'Exists'`, p, q,
+                (err, result) => {
+                    if (err) reject(err);
+                    else resolve(result['Exists'] === 1);
+                });
+        });
     }
 
     loadChunk(p, q) {
@@ -35,17 +43,14 @@ export default class WorldStore {
         });
     }
 
-    saveChunk({ p, q, dx, dy, dz }) {
+    saveChunk({ p, q, map }) {
         this.db.run(`
-            INSERT INTO Chunks (p, q, dx, dy, dz)
-                VALUES ($p, $q, $dx, $dy, $dz)
-                ON CONFLICT(p, q) DO UPDATE SET
-                    dx=$dx, dy=$dy, dz=$dz;`, {
+            INSERT INTO Chunks (p, q, map)
+                VALUES ($p, $q, $map)
+                ON CONFLICT(p, q) DO UPDATE SET map=$map;`, {
             $p: p,
             $q: q,
-            $dx: dx,
-            $dy: dy,
-            $dz: dz
+            $map: new Buffer(map)
         }, (err) => {
             if (err) throw err;
             console.log("Saved chunk");

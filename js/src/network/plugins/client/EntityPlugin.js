@@ -27,7 +27,7 @@ export default class EntityPlugin extends ServerPlugin {
                         this.entities[data.id] = entity;
                         this.onCreateEntity(entity);
                     } else {
-                        throw `Unregistered entity type ${data.type}.`;
+                        throw Error(`Unregistered entity type ${data.type}.`);
                     }
                 }
             }

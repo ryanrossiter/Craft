@@ -6,7 +6,8 @@ export default class GenChunkLoader extends ChunkLoader {
         this.worldInterface = worldInterface;
     }
 
-    loadChunk(chunk) {
+    async loadChunk(chunk) {
         this.worldInterface.gen_chunk(chunk.getMemoryPosition());
+        chunk.setMemoryValue('dirty', 1);
     }
 }

@@ -4,9 +4,10 @@ let { Vec3 } = CANNON;
 const SPEED = 0.01;
 
 export default class PlayerController {
-    constructor(player, inputInterface) {
+    constructor(player, clientCore) {
         this.player = player;
-        this.inputInterface = inputInterface;
+        this.clientCore = clientCore;
+        this.inputInterface = clientCore.inputInterface;
         this.up = false;
         this.down = false;
         this.left = false;
@@ -45,6 +46,12 @@ export default class PlayerController {
         if (evt.button === 0) {
             let valid = this.inputInterface.on_left_click();
             if (valid) {
+                this.clientCore.world.modifyBlock(
+                    this.clientCore.model.getMemoryValue('px'),
+                    this.clientCore.model.getMemoryValue('py'),
+                    this.clientCore.model.getMemoryValue('pz'),
+                    0, 0);
+
                 this.inputInterface.action_destroy_block();
             }
         } else if (evt.button === 1) {
@@ -52,6 +59,12 @@ export default class PlayerController {
         } else if (evt.button === 2) {
             var valid = this.inputInterface.on_right_click();
             if (valid) {
+                this.clientCore.world.modifyBlock(
+                    this.clientCore.model.getMemoryValue('px'),
+                    this.clientCore.model.getMemoryValue('py'),
+                    this.clientCore.model.getMemoryValue('pz'),
+                    0, 1);//this.clientCore.model.getMemoryValue('item_index'));
+
                 this.inputInterface.action_create_block();
             }
         }

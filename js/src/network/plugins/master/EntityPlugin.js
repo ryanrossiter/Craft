@@ -50,7 +50,7 @@ export default class EntityPlugin extends ServerPlugin {
             this.entities[id] = entity;
             this.sendUpdate(entity);
         } else {
-            throw `Unregistered entity type ${entityType}.`;
+            throw Error(`Unregistered entity type ${entityType}.`);
         }
     }
 

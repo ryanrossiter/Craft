@@ -48,7 +48,7 @@ const getFieldData = (memData, memPos, name) => {
     let names = name.split('.');
     let n = names[0];
     if (memData.hasOwnProperty(n) === false) {
-        throw `Memory data doesn't contain the field ${n} (in ${name})`;
+        throw Error(`Memory data doesn't contain the field ${n} (in ${name})`);
     }
 
     let field = memData[n];

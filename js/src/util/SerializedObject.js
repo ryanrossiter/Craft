@@ -8,7 +8,7 @@ const SerializedObject = (SuperClass, type, SCHEMA) => {
     }
 
     if (SCHEMA === undefined) {
-        throw "SCHEMA can't be undefined";
+        throw Error("SCHEMA can't be undefined");
     }
 
     return class extends SuperClass {
@@ -16,15 +16,15 @@ const SerializedObject = (SuperClass, type, SCHEMA) => {
             super(...arguments);
 
             if (SuperClass !== Object && !super.updateData) {
-                throw "Super class must implement updateData (Should inherit from SerializedObject)";
+                throw Error("Super class must implement updateData (Should inherit from SerializedObject)");
             }
 
             if (SuperClass !== Object && !super.onUpdateData) {
-                throw "Super class must implement onUpdateData (Should inherit from SerializedObject)";
+                throw Error("Super class must implement onUpdateData (Should inherit from SerializedObject)");
             }
 
             if (SuperClass !== Object && !super.onChangeData) {
-                throw "Super class must implement onChangeData (Should inherit from SerializedObject)";
+                throw Error("Super class must implement onChangeData (Should inherit from SerializedObject)");
             }
 
             this[_data] = mask({
@@ -40,7 +40,7 @@ const SerializedObject = (SuperClass, type, SCHEMA) => {
                     get: () => this[_data][p],
                     set: (v) => {
                         if (this[_data]._static.includes(p)) {
-                            throw `Property "${p}" is static and cannot be updated`;
+                            throw Error(`Property "${p}" is static and cannot be updated`);
                         }
 
                         this[_data][p] = v;

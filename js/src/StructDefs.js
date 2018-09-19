@@ -25,17 +25,21 @@ export const MapStruct = [
 export const ChunkStruct = [
     { name: 'p', type: 'i32' },
     { name: 'q', type: 'i32' },
-    { name: 'faces', type: 'i32' },
-    { name: 'sign_faces', type: 'i32' },
-    { name: 'dirty', type: 'i32' },
     { name: 'active', type: 'i32' },
+    { name: 'dirty', type: 'i32' },
     { name: 'miny', type: 'i32' },
     { name: 'maxy', type: 'i32' },
     { name: 'map', type: 'struct', struct: MapStruct },
     { name: 'lights', type: 'struct', struct: MapStruct },
-    { name: 'signs', type: 'struct', struct: SignListStruct },
+    { name: 'signs', type: 'struct', struct: SignListStruct }
+];
+
+export const ClientChunkStruct = [
+    { name: 'c', type: 'struct', struct: ChunkStruct },
     { name: 'buffer', type: 'i32' },
     { name: 'sign_buffer', type: 'i32' },
+    { name: 'faces', type: 'i32' },
+    { name: 'sign_faces', type: 'i32' },
 ];
 
 export const StateStruct = [
@@ -55,10 +59,21 @@ export const PlayerStruct = [
 ];
 
 export const ClientModelStruct = [
-    { name: 'chunks', type: 'struct', length: 4096, struct: ChunkStruct },
+    { name: 'chunks', type: 'struct', length: 4096, struct: ClientChunkStruct },
     { name: 'players', type: 'struct', length: 128, struct: PlayerStruct },
     { name: 'create_radius', type: 'i32' },
     { name: 'render_radius', type: 'i32' },
     { name: 'delete_radius', type: 'i32' },
     { name: 'sign_radius', type: 'i32' },
+    { name: 'width', type: 'i32' },
+    { name: 'height', type: 'i32' },
+    { name: 'item_index', type: 'i32' },
+    { name: 'scale', type: 'i32' },
+    { name: 'ortho', type: 'i32' },
+    { name: 'fov', type: 'float' },
+    { name: 'day_length', type: 'i32' },
+    { name: 'time_changed', type: 'i32' },
+    { name: 'px', type: 'i32' },
+    { name: 'py', type: 'i32' },
+    { name: 'pz', type: 'i32' },
 ];
