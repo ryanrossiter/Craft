@@ -1,8 +1,17 @@
 cmake_minimum_required(VERSION 2.8)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 project(craft)
 
 FILE(GLOB SOURCE_FILES src/*.c)
+list(REMOVE_ITEM SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/gen_main.c)
+
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(GEN_SOURCE_FILES
+        ${SRC_DIR}/gen_main.c
+        ${SRC_DIR}/world.c
+        ${SRC_DIR}/map.c
+        ${SRC_DIR}/sign.c)
 
 function(JOIN VALUES GLUE OUTPUT)
     string (REPLACE ";" "${GLUE}" _TMP_STR "${VALUES}")
@@ -18,80 +27,54 @@ set(EXPORTED_FUNCTION_LIST
         get_unused_player_mem_location
         get_workers_mem_location
         get_chunks_mem_location
+        get_unused_chunk_mem_location
+        find_chunk
+        init_chunk
+        delete_chunk
+        gen_chunk
         on_left_click
         on_right_click
         on_middle_click
         action_destroy_block
         action_create_block)
 
-JOIN("${EXPORTED_FUNCTION_LIST}" "', '_" EXPORTED_FUNCTIONS)
+SET(WORLD_INTERFACE_FUNCTION_LIST
+        find_chunk
+        get_unused_chunk_mem_location
+        init_chunk
+        delete_chunk
+        gen_chunk)
 
-if (EMSCRIPTEN)
-    add_executable(
-        craft
-        ${SOURCE_FILES}
-        #deps/glew/src/glew.c
-        deps/lodepng/lodepng.c
-        deps/noise/noise.c
-        deps/sqlite/sqlite3.c
-        deps/tinycthread/tinycthread.c)
-    # Generate HTML file wrapper in addition to .js
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
-else ()
-    add_executable(
-        craft
-        ${SOURCE_FILES}
-        deps/glew/src/glew.c
-        deps/lodepng/lodepng.c
-        deps/noise/noise.c
-        deps/sqlite/sqlite3.c
-        deps/tinycthread/tinycthread.c)
-endif ()
+JOIN("${EXPORTED_FUNCTION_LIST}" "', '_" EXPORTED_FUNCTIONS)
+JOIN("${WORLD_INTERFACE_FUNCTION_LIST}" "', '_" WORLD_INTERFACE_FUNCTIONS)
+
+add_executable(
+    craft
+    ${SOURCE_FILES}
+    #deps/glew/src/glew.c
+    deps/lodepng/lodepng.c
+    deps/noise/noise.c
+    deps/tinycthread/tinycthread.c)
+
+add_executable(
+    craft_gen
+    ${GEN_SOURCE_FILES}
+    deps/noise/noise.c)
+# Generate HTML file wrapper in addition to .js
+set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
 add_definitions(-std=c99 -O3)
 
-if (EMSCRIPTEN)
-    # Emscripten default is GLFW 2.x but we use GLFW 3.x, also include data files
-    set_target_properties(craft PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s EXPORTED_FUNCTIONS=\"['_${EXPORTED_FUNCTIONS}']\" -s EXTRA_EXPORTED_RUNTIME_METHODS=\"['cwrap', 'ccall', 'setValue', 'getValue']\" --embed-file ../shaders/ -s TOTAL_MEMORY=33554432 --embed-file ../textures/ --shell-file ../index_shell.html")
-endif ()
+# Emscripten default is GLFW 2.x but we use GLFW 3.x, also include data files
+set_target_properties(craft PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s USE_PTHREADS=1 -s WASM=0 -s TOTAL_MEMORY=512MB --memoryprofiler -Os \
+    -s EXPORTED_FUNCTIONS=\"['_${EXPORTED_FUNCTIONS}']\" -s EXTRA_EXPORTED_RUNTIME_METHODS=\"['cwrap', 'ccall', 'setValue', 'getValue']\" \
+    --embed-file ../shaders/ --embed-file ../textures/ --shell-file ../index_shell.html")
 
-if (NOT EMSCRIPTEN)
-    # Emscripten includes its own GLFW and GLEW ports
-    add_subdirectory(deps/glfw)
-    include_directories(deps/glew/include)
-    include_directories(deps/glfw/include)
-endif ()
+set_target_properties(craft_gen PROPERTIES LINK_FLAGS "-s WASM=0 -s TOTAL_MEMORY=256MB \
+    -s EXPORTED_FUNCTIONS=\"['_${WORLD_INTERFACE_FUNCTIONS}']\" -s EXTRA_EXPORTED_RUNTIME_METHODS=\"['cwrap', 'ccall', 'setValue', 'getValue']\"")
 
 include_directories(deps/lodepng)
 include_directories(deps/noise)
-include_directories(deps/sqlite)
 include_directories(deps/tinycthread)
 
-if(MINGW)
-    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-        "C:/Program Files/CURL/lib" "C:/Program Files (x86)/CURL/lib")
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
-        "C:/Program Files/CURL/include" "C:/Program Files (x86)/CURL/include")
-endif()
-
-if (NOT EMSCRIPTEN)
-    find_package(CURL REQUIRED)
-    include_directories(${CURL_INCLUDE_DIR})
-else ()
-    set(CURL_LIBRARIES "")
-endif ()
-
-if(APPLE)
-    target_link_libraries(craft glfw
-        ${GLFW_LIBRARIES} ${CURL_LIBRARIES})
-endif()
-
-if(UNIX)
-    target_link_libraries(craft dl glfw
-        ${GLFW_LIBRARIES} ${CURL_LIBRARIES})
-endif()
-
-if(MINGW)
-    target_link_libraries(craft ws2_32.lib glfw
-        ${GLFW_LIBRARIES} ${CURL_LIBRARIES})
-endif()
+set(CURL_LIBRARIES "")
