@@ -1,4 +1,5 @@
 import EntityTypes from '~/entities/EntityTypes';
+import PhysicsEntity from '~/entities/PhysicsEntity';
 import Defs from '~/Defs';
 
 import MasterServer from '~/network/MasterServer';
@@ -6,17 +7,43 @@ import MasterCorePlugin from '~/network/plugins/master/MasterCorePlugin';
 import EntityPlugin from '~/network/plugins/master/EntityPlugin';
 import WorldPlugin from '~/network/plugins/master/WorldPlugin';
 
+import WorldPhysics from '~/world/WorldPhysics';
+import WorldStore from '~/world/WorldStore';
+import ChunkManager from '~/world/ChunkManager';
+import DbChunkLoader from '~/world/DbChunkLoader';
+
 export default class MasterCore {
     constructor(worldInterface) {
+        this.physics = new WorldPhysics();
+
+        let worldStore = new WorldStore();
+        this.chunkManager = new ChunkManager(worldInterface, this.physics,
+            new DbChunkLoader(worldInterface, worldStore)
+        );
+
         this.server = new MasterServer();
         this.masterCorePlugin = new MasterCorePlugin(this);
-        this.entities = new EntityPlugin();
-        this.world = new WorldPlugin(worldInterface);
+        this.entities = new EntityPlugin(
+            (e) => this.onCreateEntity(e),
+            (e) => this.onDeleteEntity(e));
+        this.world = new WorldPlugin(this.chunkManager, worldStore);
 
         this.server.addPlugin(this.masterCorePlugin);
         this.server.addPlugin(this.entities);
         this.server.addPlugin(this.world);
         this.server.init();
+    }
+
+    onCreateEntity(entity) {
+        if (entity instanceof PhysicsEntity) {
+            this.physics.addBody(entity.body);
+        }
+    }
+
+    onDeleteEntity(entity) {
+        if (entity instanceof PhysicsEntity) {
+            this.physics.removeBody(entity.body);
+        }
     }
 
     start() {
@@ -28,7 +55,9 @@ export default class MasterCore {
         let delta = now - this.lastUpdate;
         this.lastUpdate = now;
 
+        this.physics.update(now);
         this.entities.update();
         this.entities.sendUpdates();
+        this.masterCorePlugin.update();
     }
 }

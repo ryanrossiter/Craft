@@ -1,8 +1,10 @@
 import { chunked } from '~/world/ChunkUtils';
 import CANNON from 'cannon';
-let { Vec3 } = CANNON;
 
-const SPEED = 0.01;
+const ACCEL = 0.7;
+const RUN_ACCEL = 1.4;
+const JUMP_TIMER = 250;
+const JUMP_FORCE = 10;
 
 export default class PlayerController {
     constructor(player, clientCore) {
@@ -16,6 +18,8 @@ export default class PlayerController {
         this.dx = 0;
         this.dz = 0;
         this.flying = false;
+        this.jumping = false;
+        this.running = false;
 
         let canvas = document.querySelector('#canvas');
         canvas.addEventListener('mousedown', (evt) => {
@@ -33,6 +37,10 @@ export default class PlayerController {
         document.addEventListener('keydown', (evt) => {
             if (document.pointerLockElement !== canvas
                 && document.mozPointerLockElement !== canvas) return;
+
+            if (evt.code === 'Space') {
+                evt.preventDefault(); // stop space from scrolling page
+            }
             this.onKeyChanged(evt, true);
         });
 
@@ -93,6 +101,13 @@ export default class PlayerController {
 
     onKeyChanged(evt, pressed) {
         if (evt.code == 'Tab' && !pressed) this.flying = !this.flying;
+        else if (evt.code == 'Space') {
+            if (pressed && this.jumping <= 0) {
+                this.jumping = JUMP_TIMER;
+            } else if (!pressed && this.jumping > 0) {
+                this.jumping = 0;
+            }
+        } else if (evt.code == 'ShiftLeft') this.running = pressed; 
         else if (evt.code == 'KeyW') this.up = pressed;
         else if (evt.code == 'KeyS') this.down = pressed;
         else if (evt.code == 'KeyA') this.left = pressed;
@@ -107,7 +122,7 @@ export default class PlayerController {
 
     getMotionVector() {
         if (this.dx === 0 && this.dz === 0) {
-            return new Vec3(0,0,0);
+            return new CANNON.Vec3(0,0,0);
         }
 
         let strafe = Math.atan2(this.dz, this.dx);
@@ -123,16 +138,25 @@ export default class PlayerController {
             if (this.dz > 0) {
                 y = -y;
             }
-            return new Vec3(Math.cos(this.player.rx + strafe) * m, y, Math.sin(this.player.rx + strafe) * m);
+            return new CANNON.Vec3(Math.cos(this.player.rx + strafe) * m, y, Math.sin(this.player.rx + strafe) * m);
         } else {
-            return new Vec3(Math.cos(this.player.rx + strafe), 0, Math.sin(this.player.rx + strafe));
+            return new CANNON.Vec3(Math.cos(this.player.rx + strafe), 0, Math.sin(this.player.rx + strafe));
         }
     }
 
     update(delta) {
-        let motion = this.getMotionVector().scale(SPEED * delta);
-        this.player.x += motion.x;
-        this.player.y += motion.y;
-        this.player.z += motion.z;
+        let accel = (this.running? RUN_ACCEL : ACCEL);
+        let motion = this.getMotionVector().scale(accel * delta);
+        this.player.body.force.vadd(motion, this.player.body.force);
+
+        if (this.jumping > 0) {
+            let jump_delta = Math.min(delta, this.jumping);
+            let jump_fac = Math.pow(this.jumping / JUMP_TIMER, 2);
+            this.player.body.applyLocalForce(new CANNON.Vec3(0, JUMP_FORCE * jump_fac * jump_delta, 0), new CANNON.Vec3(0, 0, 0));
+            this.jumping -= delta;
+        } else {
+            this.jumping = 0;
+        }
+        //console.log(this.player.body.velocity);
     }
 }

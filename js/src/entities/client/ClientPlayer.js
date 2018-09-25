@@ -10,7 +10,10 @@ export default class ClientPlayer extends MemoryBackedObject(Player, PlayerStruc
 
     initMemory() {
         this.setMemoryValue('id', hashCode(this.id));
-        // TODO: On delete set id to 0
+    }
+
+    onDelete() {
+        this.setMemoryValue('id', 0);
     }
 
     onChangeData(k, v) {

@@ -20,4 +20,6 @@ export default class Entity extends SerializedObject(null,
     serverUpdate() {}
 
     clientUpdate() {}
+
+    onDelete() {}
 }

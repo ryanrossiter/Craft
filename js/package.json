@@ -7,7 +7,7 @@
     "builder": "webpack --watch",
     "server-build": "webpack --config webpack.server.config.js",
     "server-builder": "webpack --config webpack.server.config.js --watch",
-    "server": "nodemon dist/server-bundle.js"
+    "server": "nodemon dist/server-bundle.js --watch dist/server-bundle.js"
   },
   "author": "Ryan Rossiter",
   "license": "ISC",

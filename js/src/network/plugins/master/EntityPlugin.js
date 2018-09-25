@@ -4,10 +4,10 @@ import Player from '~/entities/Player';
 import { generateUuid } from '~/util/UUID';
 
 export default class EntityPlugin extends ServerPlugin {
-    constructor(time, onCreateEntity) {
+    constructor(onCreateEntity, onDeleteEntity) {
         super();
-        this.time = time;
         this.onCreateEntity = onCreateEntity;
+        this.onDeleteEntity = onDeleteEntity;
         this.entities = {};
 
         this.entityFactory = {
@@ -48,10 +48,16 @@ export default class EntityPlugin extends ServerPlugin {
             });
 
             this.entities[id] = entity;
+            this.onCreateEntity(entity);
             this.sendUpdate(entity);
         } else {
             throw Error(`Unregistered entity type ${entityType}.`);
         }
+    }
+
+    delete(entity) {
+        entity.deleted = true;
+        this.onDeleteEntity(entity);
     }
 
     update() {
@@ -100,5 +106,17 @@ export default class EntityPlugin extends ServerPlugin {
         if (entityData.length > 0) {
             socket.emit('entity.update', { entityData });
         }
+    }
+
+    search(cond) {
+        let entities = [];
+
+        for (let e of Object.values(this.entities)) {
+            if (cond(e) === true) {
+                entities.push(e);
+            }
+        }
+
+        return entities;
     }
 }

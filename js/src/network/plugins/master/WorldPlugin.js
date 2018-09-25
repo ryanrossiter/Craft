@@ -1,21 +1,16 @@
 import Defs from '~/Defs';
 import ServerPlugin from '~/network/ServerPlugin';
-import ChunkManager from '~/world/ChunkManager';
-import DbChunkLoader from '~/world/DbChunkLoader';
-import WorldStore from '~/world/WorldStore';
 import { chunkKey, chunked } from '~/world/ChunkUtils'; 
 
 export default class WorldPlugin extends ServerPlugin {
-    constructor(worldInterface) {
+    constructor(chunkManager, worldStore) {
         super();
+        this.chunkManager = chunkManager;
+        this.worldStore = worldStore;
+
         this.subCount = {}; // socketId: subCount
         this.chunkSubs = {}; // chunkKey: [...sockets]
         this.changedChunks = []; // [...chunkKeys]
-
-        this.worldStore = new WorldStore();
-        this.chunkManager = new ChunkManager(worldInterface,
-            new DbChunkLoader(worldInterface, this.worldStore)
-        );
     }
 
     async getChunk(p, q, r) {
@@ -120,12 +115,7 @@ export default class WorldPlugin extends ServerPlugin {
         });
 
         registerHandler('chunk.unsub', (socket, { p, q, r }, cb) => {
-            let subs = this.unsubChunk(p, q, r, socket);
-
-            if (subs === 0) {
-                console.log("Removing chunk", p, q, r);
-                this.removeChunk(p, q, r);
-            }
+            this.unsubChunk(p, q, r, socket);
         });
 
         registerHandler('block.modify', async (socket, { x, y, z, state, w }, cb) => {

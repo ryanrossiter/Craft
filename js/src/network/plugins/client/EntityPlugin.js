@@ -3,10 +3,11 @@ import EntityTypes from '~/entities/EntityTypes';
 import ClientPlayer from '~/entities/client/ClientPlayer';
 
 export default class EntityPlugin extends ServerPlugin {
-    constructor(time, onCreateEntity) {
+    constructor(time, onCreateEntity, onDeleteEntity) {
         super();
         this.time = time;
         this.onCreateEntity = onCreateEntity;
+        this.onDeleteEntity = onDeleteEntity;
         this.entities = {};
 
         this.entityFactory = {
@@ -37,6 +38,7 @@ export default class EntityPlugin extends ServerPlugin {
             for (let id of entityIds) {
                 if (this.entities.hasOwnProperty(id)) {
                     this.entities[id].onDelete();
+                    this.onDeleteEntity(this.entities[id]);
                     delete this.entities[id];
                 }
             }
@@ -55,7 +57,7 @@ export default class EntityPlugin extends ServerPlugin {
     sendUpdate(entity) {
         this.emit('entity.update', { entityData: [entity.toData()] }, (data) => {
             // The server might return a correction
-            if (data) entity.dataUpdate(data, this.time.now);
+            if (data) entity.updateData(data);
         });
     }
 
