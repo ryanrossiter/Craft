@@ -147,6 +147,11 @@ export default class PlayerController {
     update(delta) {
         let accel = (this.running? RUN_ACCEL : ACCEL);
         let motion = this.getMotionVector().scale(accel * delta);
+        if (this.flying) {
+            // I have no idea why you gotta multiply mass by 3
+            motion.vsub(this.clientCore.physics.gravity.scale(this.player.body.mass * 3), motion);
+        }
+
         this.player.body.force.vadd(motion, this.player.body.force);
 
         if (this.jumping > 0) {
