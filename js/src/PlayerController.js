@@ -1,9 +1,11 @@
 import { chunked } from '~/world/ChunkUtils';
 import CANNON from 'cannon';
 
-const ACCEL = 0.7;
-const RUN_ACCEL = 1.4;
-const JUMP_TIMER = 250;
+const DEFAULT_FOV = 85;
+const RUNNING_FOV = 100;
+const ACCEL = 1.4;
+const RUN_ACCEL = 3;
+const JUMP_TIMER = 300;
 const JUMP_FORCE = 10;
 
 export default class PlayerController {
@@ -20,6 +22,8 @@ export default class PlayerController {
         this.flying = false;
         this.jumping = false;
         this.running = false;
+        this.ortho = false;
+        this.fov = DEFAULT_FOV;
 
         let canvas = document.querySelector('#canvas');
         canvas.addEventListener('mousedown', (evt) => {
@@ -38,7 +42,7 @@ export default class PlayerController {
             if (document.pointerLockElement !== canvas
                 && document.mozPointerLockElement !== canvas) return;
 
-            if (evt.code === 'Space') {
+            if (evt.code === 'Space' || evt.code === 'F1') {
                 evt.preventDefault(); // stop space from scrolling page
             }
             this.onKeyChanged(evt, true);
@@ -107,8 +111,11 @@ export default class PlayerController {
             } else if (!pressed && this.jumping > 0) {
                 this.jumping = 0;
             }
-        } else if (evt.code == 'ShiftLeft') this.running = pressed; 
-        else if (evt.code == 'KeyW') this.up = pressed;
+        } else if (evt.code == 'ShiftLeft') this.running = pressed;
+        else if (evt.code == 'F1' && !pressed) {
+            this.ortho = !this.ortho;
+            this.clientCore.model.setMemoryValue('ortho', this.ortho? 30 : 0);
+        } else if (evt.code == 'KeyW') this.up = pressed;
         else if (evt.code == 'KeyS') this.down = pressed;
         else if (evt.code == 'KeyA') this.left = pressed;
         else if (evt.code == 'KeyD') this.right = pressed;
@@ -163,5 +170,9 @@ export default class PlayerController {
             this.jumping = 0;
         }
         //console.log(this.player.body.velocity);
+
+        let targetFov = this.running? RUNNING_FOV : DEFAULT_FOV;
+        this.fov += (targetFov - this.fov) * 0.1;
+        this.clientCore.model.setMemoryValue('fov', this.fov);
     }
 }

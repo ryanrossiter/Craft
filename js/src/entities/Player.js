@@ -13,8 +13,8 @@ export default class Player extends SerializedObject(PhysicsEntity,
     }
 
     createBody() {
-        let radius = 0.3;
-        let height = 1.5;
+        let radius = 1.4;
+        let height = 4.5;
         let segments = 15;
         // let shape = new CANNON.Cylinder(radius, radius, height, segments);
         let shape = new CANNON.Sphere(radius);
@@ -34,7 +34,7 @@ export default class Player extends SerializedObject(PhysicsEntity,
             fixedRotation: true,
             linearDamping: 0.7
         });
-        body.addShape(new CANNON.Sphere(radius), new CANNON.Vec3(0, -1, 0));
+        body.addShape(new CANNON.Sphere(radius), new CANNON.Vec3(0, -height + radius, 0));
 
         return body;
     }

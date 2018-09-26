@@ -46,6 +46,7 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
         let map = bj.chunk.getMap();
         let br = this.chunkAABBCollision(bj.aabb, bi.aabb, (x, y, z) => {
             if (isBlockSolid(bj.chunk.getBlock(x, y, z, map))) {
+                // TODO: Speedup from re-using bodies (body pool)
                 let blockBody = new CANNON.Body({
                     type: CANNON.Body.STATIC,
                     mass: 0,
