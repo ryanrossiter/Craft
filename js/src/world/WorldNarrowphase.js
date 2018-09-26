@@ -2,6 +2,7 @@ import CANNON from 'cannon';
 import Defs from '~/Defs';
 import { isBlockSolid } from '~/world/ChunkUtils';
 import physicsMaterial from '~/world/physicsMaterial';
+import BodyPool from '~/world/BodyPool';
 
 const halfBlockSize = new CANNON.Vec3(Defs.WORLD_SCALE / 2, Defs.WORLD_SCALE / 2, Defs.WORLD_SCALE / 2);
 const blockShape = new CANNON.Box(halfBlockSize);
@@ -9,6 +10,12 @@ const blockShape = new CANNON.Box(halfBlockSize);
 export default class WorldNarrowphase extends CANNON.Narrowphase {
     constructor(...args) {
         super(...args);
+        this.bodyPool = new BodyPool(15, {
+            type: CANNON.Body.STATIC,
+            mass: 0,
+            material: physicsMaterial,
+            shape: blockShape
+        });
 
         this[Defs.SHAPE_TYPE_CHUNK | CANNON.Shape.types.SPHERE] =
         this[Defs.SHAPE_TYPE_CHUNK | CANNON.Shape.types.BOX] =
@@ -46,15 +53,7 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
         let map = bj.chunk.getMap();
         let br = this.chunkAABBCollision(bj.aabb, bi.aabb, (x, y, z) => {
             if (isBlockSolid(bj.chunk.getBlock(x, y, z, map))) {
-                // TODO: Speedup from re-using bodies (body pool)
-                let blockBody = new CANNON.Body({
-                    type: CANNON.Body.STATIC,
-                    mass: 0,
-                    material: physicsMaterial,
-                    position: new CANNON.Vec3(x, y, z)
-                });
-                blockBody.addShape(blockShape);
-                blockBody.computeAABB();
+                let blockBody = this.bodyPool.init(x, y, z);
 
                 // override current contact material with one from material pairing w blockBody
                 this.currentContactMaterial = this.world.getContactMaterial(blockBody.material, bi.material)
@@ -81,6 +80,7 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
             }
         });
 
+        this.bodyPool.freeAll();
         if (br && justTest) return true;
     }
 }
