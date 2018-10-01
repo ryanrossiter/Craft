@@ -80,7 +80,10 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
             }
         });
 
-        this.bodyPool.freeAll();
         if (br && justTest) return true;
+    }
+
+    postStep() {
+        this.bodyPool.freeAll();
     }
 }

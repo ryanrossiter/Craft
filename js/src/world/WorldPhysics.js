@@ -8,6 +8,7 @@ export default class WorldPhysics extends CANNON.World {
         super(...arguments);
         this.quatNormalizeSkip = 0;
         this.quatNormalizeFast = false;
+        this.doProfiling = false;
 
         let solver = new CANNON.GSSolver();
 
@@ -56,6 +57,8 @@ export default class WorldPhysics extends CANNON.World {
             }
         }
 
+        // console.log(this.profile);
         this.lastUpdate = now;
+        this.narrowphase.postStep();
     }
 }

@@ -6,6 +6,7 @@ import MasterServer from '~/network/MasterServer';
 import MasterCorePlugin from '~/network/plugins/master/MasterCorePlugin';
 import EntityPlugin from '~/network/plugins/master/EntityPlugin';
 import WorldPlugin from '~/network/plugins/master/WorldPlugin';
+import ChatPlugin from '~/network/plugins/master/ChatPlugin';
 
 import WorldPhysics from '~/world/WorldPhysics';
 import WorldStore from '~/world/WorldStore';
@@ -27,10 +28,12 @@ export default class MasterCore {
             (e) => this.onCreateEntity(e),
             (e) => this.onDeleteEntity(e));
         this.world = new WorldPlugin(this.chunkManager, worldStore);
+        this.chat = new ChatPlugin(this);
 
         this.server.addPlugin(this.masterCorePlugin);
         this.server.addPlugin(this.entities);
         this.server.addPlugin(this.world);
+        this.server.addPlugin(this.chat);
         this.server.init();
     }
 

@@ -18,7 +18,7 @@
 #include "util.h"
 #include "world.h"
 
-#define MAX_CHUNKS 4096
+#define MAX_CHUNKS 1024
 #define MAX_PLAYERS 128
 #define WORKERS 4
 #define MAX_NAME_LENGTH 32
@@ -109,6 +109,7 @@ typedef struct {
     int scale;
     int ortho;
     float fov;
+    int time;
     int day_length;
     int time_changed;
     struct {
@@ -156,14 +157,7 @@ int chunked(float x) {
 }
 
 float time_of_day() {
-    if (g->day_length <= 0) {
-        return 0.5;
-    }
-    float t;
-    t = (float)glfwGetTime();
-    t = t / g->day_length;
-    t = t - (int)t;
-    return t;
+    return (g->time % g->day_length) / (float)g->day_length;
 }
 
 float get_daylight() {
@@ -432,6 +426,7 @@ Player *player_crosshair(Player *player) {
     return result;
 }
 
+// TODO: Speedup using a hash map or something
 ClientChunk *find_chunk(int p, int q, int r) {
     for (int i = 0; i < MAX_CHUNKS; i++) {
         ClientChunk *chunk = g->chunks + i;
@@ -1141,20 +1136,21 @@ void ensure_chunks_worker(Player *player, Worker *worker) {
     int best_score = start;
     ClientChunk *best_chunk;
 
-    int dp = 0, dq = 0, dr = 0;
-    for (int di = 0; di < working_area; di++) {
+    int dp = worker->index, dq = 0, dr = 0;
+    for (int di = worker->index; di < working_area; di += WORKERS) {
         int a = p - WORKER_CHUNK_RADIUS + dp;
         int b = q - WORKER_CHUNK_RADIUS + dq;
         int c = r - WORKER_CHUNK_RADIUS + dr;
-        if (++dp >= working_len) {
-            dp = 0;
-            if (++dq >= working_len) {
-                dq = 0;
-                dr++;
+
+        dp += WORKERS;
+        if (dp >= working_len) {
+            dq += dp / working_len;
+            dp = dp % working_len;
+            if (dq >= working_len) {
+                dr += dq / working_len;
+                dq = dq % working_len;
             }
         }
-
-        if ((di - worker->index) % WORKERS != 0) continue;
 
         ClientChunk *chunk = find_chunk(a, b, c);
         if (!chunk || (chunk && !chunk->c.dirty)) {
@@ -2060,7 +2056,7 @@ void run_frame() {
     float tx = ts / 2;
     float ty = g->height - ts;
     if (SHOW_INFO_TEXT) {
-        int hour = (int)time_of_day() * 24;
+        int hour = (int)(time_of_day() * 24);
         char am_pm = (char)(hour < 12 ? 'a' : 'p');
         hour = hour % 12;
         hour = hour ? hour : 12;

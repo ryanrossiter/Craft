@@ -22,7 +22,7 @@ export default class BodyPool extends ObjectPool {
 
 		body.id = id;
 		body.position.set(x, y, z);
-		body.computeAABB();
+		//body.computeAABB();
 
 		return body;
 	}

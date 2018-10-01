@@ -58,7 +58,7 @@ export const PlayerStruct = [
 ];
 
 export const ClientModelStruct = [
-    { name: 'chunks', type: 'struct', length: 4096, struct: ClientChunkStruct },
+    { name: 'chunks', type: 'struct', length: 1024, struct: ClientChunkStruct },
     { name: 'players', type: 'struct', length: 128, struct: PlayerStruct },
     { name: 'create_radius', type: 'i32' },
     { name: 'render_radius', type: 'i32' },
@@ -70,6 +70,7 @@ export const ClientModelStruct = [
     { name: 'scale', type: 'i32' },
     { name: 'ortho', type: 'i32' },
     { name: 'fov', type: 'float' },
+    { name: 'time', type: 'i32' },
     { name: 'day_length', type: 'i32' },
     { name: 'time_changed', type: 'i32' },
     { name: 'px', type: 'i32' },

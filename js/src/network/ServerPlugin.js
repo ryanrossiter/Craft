@@ -1,5 +1,9 @@
-export default class ServerPlugin {
+import EventEmitter from 'events';
+
+export default class ServerPlugin extends EventEmitter {
     constructor() {
+        super();
+        this.emitEvent = this.emit; // inherited from EventEmitter
         this.emit = null;
     }
 

@@ -19,6 +19,10 @@ export default class ClientCorePlugin extends ServerPlugin {
         registerHandler('client.leave', (socket, { playerId }) => {
             delete this.players[playerId];
         });
+
+        registerHandler('core.update', (socket, { gameTime }) => {
+            this.clientCore.model.setMemoryValue('time', gameTime);
+        });
     }
 
     join() {

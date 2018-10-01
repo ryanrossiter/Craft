@@ -6,7 +6,7 @@ const RUNNING_FOV = 100;
 const ACCEL = 1.4;
 const RUN_ACCEL = 3;
 const JUMP_TIMER = 300;
-const JUMP_FORCE = 10;
+const JUMP_FORCE = 15;
 
 export default class PlayerController {
     constructor(player, clientCore) {
@@ -163,8 +163,9 @@ export default class PlayerController {
 
         if (this.jumping > 0) {
             let jump_delta = Math.min(delta, this.jumping);
-            let jump_fac = Math.pow(this.jumping / JUMP_TIMER, 2);
-            this.player.body.applyLocalForce(new CANNON.Vec3(0, JUMP_FORCE * jump_fac * jump_delta, 0), new CANNON.Vec3(0, 0, 0));
+            let jump_fac = this.jumping / JUMP_TIMER;
+            this.player.body.force.vadd(new CANNON.Vec3(0, JUMP_FORCE * jump_fac * jump_delta, 0),
+                this.player.body.force);
             this.jumping -= delta;
         } else {
             this.jumping = 0;

@@ -7,7 +7,8 @@ export default class MasterCorePlugin extends ServerPlugin {
         super();
         this.masterCore = masterCore;
         this.players = {};
-        this.lastUpdate = 0;
+        this.lastUpdate = Date.now();
+        this.gameTime = Defs.TIME_DAY;
     }
 
     getPlayer(playerId) {
@@ -17,8 +18,9 @@ export default class MasterCorePlugin extends ServerPlugin {
     update() {
         let now = Date.now();
         if (now - this.lastUpdate > Defs.CORE_SYNC_INTERVAL) {
+            this.gameTime += now - this.lastUpdate;
             this.lastUpdate = now;
-            this.emit('core.update', { time: now });
+            this.emit('core.update', { time: now, gameTime: this.gameTime });
         }
     }
 

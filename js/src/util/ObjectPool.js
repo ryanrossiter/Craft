@@ -10,12 +10,12 @@ export default class ObjectPool {
 		}
 
 		for (let i = 0; i < n; i++) {
-			this.objs.push(this._allocate());
+			this._allocate();
 		}
 	}
 
 	_allocate() {
-		let obj = new Cls(...this.args);
+		let obj = new (this.Cls)(...this.args);
 		this.objs.push(obj);
 		return obj;
 	}
@@ -24,7 +24,7 @@ export default class ObjectPool {
 		for (let i = 0; i < this.objs.length; i++) {
 			if (this.usedObjs.indexOf(i) === -1) {
 				this.usedObjs.push(i);
-				return objs[i];
+				return this.objs[i];
 			}
 		}
 

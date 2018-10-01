@@ -9,12 +9,15 @@ import ClientCorePlugin from '~/network/plugins/client/ClientCorePlugin';
 import TimeKeeperPlugin from '~/network/plugins/client/TimeKeeperPlugin';
 import EntityPlugin from '~/network/plugins/client/EntityPlugin';
 import WorldPlugin from '~/network/plugins/client/WorldPlugin';
+import ChatPlugin from '~/network/plugins/client/ChatPlugin';
 
 import ClientChunkManager from '~/world/ClientChunkManager';
 import NetChunkLoader from '~/world/NetChunkLoader';
 import WorldPhysics from '~/world/WorldPhysics';
 // import GenChunkLoader from '~/world/GenChunkLoader';
 import { chunked } from '~/world/ChunkUtils';
+
+import NempGUIBuilder from '~/gui/NempGUIBuilder';
 
 export default class ClientCore {
     constructor(controlInterface, inputInterface, worldInterface) {
@@ -38,12 +41,16 @@ export default class ClientCore {
         this.entities = new EntityPlugin(this.gameTime,
             (e) => this.onCreateEntity(e), (e) => this.onDeleteEntity(e));
         this.world = new WorldPlugin();
+        this.chat = new ChatPlugin();
 
         this.server.addPlugin(this.clientCorePlugin);
         this.server.addPlugin(this.gameTime);
         this.server.addPlugin(this.entities);
         this.server.addPlugin(this.world);
+        this.server.addPlugin(this.chat);
         this.server.init();
+
+        this.gui = NempGUIBuilder.build(this.chat);
 
         this.clientCorePlugin.join();
     }
@@ -121,6 +128,7 @@ export default class ClientCore {
             );
         }
 
+        this.gui.update();
         this.controlInterface.run_frame();
         window.requestAnimationFrame((now) => this.runFrame(now));
     }
