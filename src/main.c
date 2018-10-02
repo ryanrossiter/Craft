@@ -31,6 +31,10 @@
 #define WORKER_BUSY 1
 #define WORKER_DONE 2
 
+#define BUILD_MODE_SINGLE 0
+#define BUILD_MODE_FLOOR 1
+#define BUILD_MODE_WALL 2
+
 typedef struct {
     Chunk c;
     int faces;
@@ -76,6 +80,7 @@ typedef struct {
 
 typedef struct {
     int id;
+    int current_item;
     char name[MAX_NAME_LENGTH];
     State state;
     GLuint buffer;
@@ -105,7 +110,8 @@ typedef struct {
     int sign_radius;
     int width;
     int height;
-    int item_index;
+    int build_mode;
+    int build_rot;
     int scale;
     int ortho;
     float fov;
@@ -1519,6 +1525,17 @@ void render_sky(Attrib *attrib, Player *player, GLuint buffer) {
     draw_triangles_3d(attrib, buffer, 512 * 3);
 }
 
+void _render_wireframe(Attrib *attrib, float *matrix, int x, int y, int z) {
+    glUseProgram(attrib->program);
+    glLineWidth(1);
+    glEnable(GL_COLOR_LOGIC_OP);
+    glUniformMatrix4fv(attrib->matrix, 1, GL_FALSE, matrix);
+    GLuint wireframe_buffer = gen_wireframe_buffer(x, y, z, 0.53);
+    draw_lines(attrib, wireframe_buffer, 3, 24);
+    del_buffer(wireframe_buffer);
+    glDisable(GL_COLOR_LOGIC_OP);
+}
+
 void render_wireframe(Attrib *attrib, Player *player) {
     State *s = &player->state;
     float matrix[16];
@@ -1528,14 +1545,21 @@ void render_wireframe(Attrib *attrib, Player *player) {
     int hx, hy, hz;
     int hw = hit_test(0, s->x, s->y, s->z, s->rx, s->ry, &hx, &hy, &hz);
     if (is_obstacle(hw)) {
-        glUseProgram(attrib->program);
-        glLineWidth(1);
-        glEnable(GL_COLOR_LOGIC_OP);
-        glUniformMatrix4fv(attrib->matrix, 1, GL_FALSE, matrix);
-        GLuint wireframe_buffer = gen_wireframe_buffer(hx, hy, hz, 0.53);
-        draw_lines(attrib, wireframe_buffer, 3, 24);
-        del_buffer(wireframe_buffer);
-        glDisable(GL_COLOR_LOGIC_OP);
+        if (g->build_mode == BUILD_MODE_SINGLE) {
+            _render_wireframe(attrib, matrix, hx, hy, hz);
+        } else if (g->build_mode == BUILD_MODE_FLOOR) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    _render_wireframe(attrib, matrix, hx + dx, hy, hz + dz);
+                }
+            }
+        } else if (g->build_mode == BUILD_MODE_WALL) {
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dh = -1; dh <= 1; dh++) {
+                    _render_wireframe(attrib, matrix, hx + (g->build_rot == 1? dh : 0), hy + dy, hz + (g->build_rot == 0? dh : 0));
+                }
+            }
+        }
     }
 }
 
@@ -1552,7 +1576,7 @@ void render_crosshairs(Attrib *attrib) {
     glDisable(GL_COLOR_LOGIC_OP);
 }
 
-void render_item(Attrib *attrib) {
+void render_item(Attrib *attrib, int item) {
     float matrix[16];
     set_matrix_item(matrix, g->width, g->height, g->scale);
     glUseProgram(attrib->program);
@@ -1560,14 +1584,13 @@ void render_item(Attrib *attrib) {
     glUniform3f(attrib->camera, 0, 0, 5);
     glUniform1i(attrib->sampler, 0);
     glUniform1f(attrib->timer, time_of_day());
-    int w = items[g->item_index];
-    if (is_plant(w)) {
-        GLuint buffer = gen_plant_buffer(0, 0, 0, 0.5, w);
+    if (is_plant(item)) {
+        GLuint buffer = gen_plant_buffer(0, 0, 0, 0.5, item);
         draw_plant(attrib, buffer);
         del_buffer(buffer);
     }
     else {
-        GLuint buffer = gen_cube_buffer(0, 0, 0, 0.5, w);
+        GLuint buffer = gen_cube_buffer(0, 0, 0, 0.5, item);
         draw_cube(attrib, buffer);
         del_buffer(buffer);
     }
@@ -1786,33 +1809,17 @@ bool on_right_click() {
     return false;
 }
 
-void on_middle_click() {
-    State *s = &g->players->state;
-    int hx, hy, hz;
-    int hw = hit_test(0, s->x, s->y, s->z, s->rx, s->ry, &hx, &hy, &hz);
-    for (int i = 0; i < item_count; i++) {
-        if (items[i] == hw) {
-            g->item_index = i;
-            break;
-        }
-    }
-}
-
-void on_scroll(GLFWwindow *window, double xdelta, double ydelta) {
-    static double ypos = 0;
-    ypos += ydelta;
-    if (ypos < -SCROLL_THRESHOLD) {
-        g->item_index = (g->item_index + 1) % item_count;
-        ypos = 0;
-    }
-    if (ypos > SCROLL_THRESHOLD) {
-        g->item_index--;
-        if (g->item_index < 0) {
-            g->item_index = item_count - 1;
-        }
-        ypos = 0;
-    }
-}
+//void on_middle_click() {
+//    State *s = &g->players->state;
+//    int hx, hy, hz;
+//    int hw = hit_test(0, s->x, s->y, s->z, s->rx, s->ry, &hx, &hy, &hz);
+//    for (int i = 0; i < item_count; i++) {
+//        if (items[i] == hw) {
+//            g->item_index = i;
+//            break;
+//        }
+//    }
+//}
 
 void create_window() {
     int window_width = WINDOW_WIDTH;
@@ -1832,12 +1839,12 @@ void create_window() {
 void reset_model() {
     memset(g->chunks, 0, sizeof(Chunk) * MAX_CHUNKS);
     memset(g->players, 0, sizeof(Player) * MAX_PLAYERS);
-    g->item_index = 0;
 //    memset(g->typing_buffer, 0, sizeof(char) * MAX_TEXT_LENGTH);
 //    g->typing = 0;
     g->day_length = DAY_LENGTH;
     glfwSetTime(g->day_length / 3.0);
     g->time_changed = 1;
+    g->build_mode = BUILD_MODE_SINGLE;
 }
 
 void one_iter();
@@ -2047,7 +2054,7 @@ void run_frame() {
         render_crosshairs(&line_attrib);
     }
     if (SHOW_ITEM) {
-        render_item(&block_attrib);
+        render_item(&block_attrib, me->current_item);
     }
 
     // RENDER TEXT //

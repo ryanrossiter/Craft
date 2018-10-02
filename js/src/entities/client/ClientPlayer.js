@@ -17,7 +17,9 @@ export default class ClientPlayer extends MemoryBackedObject(Player, PlayerStruc
     }
 
     onChangeData(k, v) {
-        if (['x', 'y', 'z', 'rx', 'ry'].includes(k)) {
+        if (k === 'currentItem') {
+            this.setMemoryValue('current_item', v);
+        } else if (['x', 'y', 'z', 'rx', 'ry'].includes(k)) {
             this.setMemoryValue(`state.${k}`, v);
         }
 

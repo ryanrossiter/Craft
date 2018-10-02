@@ -33,7 +33,8 @@ set(EXPORTED_FUNCTION_LIST
         gen_chunk
         on_left_click
         on_right_click
-        on_middle_click)
+#        on_middle_click
+        )
 
 SET(WORLD_INTERFACE_FUNCTION_LIST
         find_chunk
@@ -63,7 +64,7 @@ set(CMAKE_EXECUTABLE_SUFFIX ".html")
 add_definitions(-std=c99 -O3)
 
 # Emscripten default is GLFW 2.x but we use GLFW 3.x, also include data files
-set_target_properties(craft PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s USE_PTHREADS=1 -s WASM=0 -s TOTAL_MEMORY=512MB --memoryprofiler -Os \
+set_target_properties(craft PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s USE_PTHREADS=1 -s WASM=0 -s TOTAL_MEMORY=512MB -Os \
     -s EXPORTED_FUNCTIONS=\"['_${EXPORTED_FUNCTIONS}']\" -s EXTRA_EXPORTED_RUNTIME_METHODS=\"['cwrap', 'ccall', 'setValue', 'getValue']\" \
     --embed-file ../shaders/ --embed-file ../textures/ --shell-file ../index_shell.html")
 

@@ -31,8 +31,8 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
     chunkAABBCollision(chunkAABB, otherAABB, callback) {
         if (chunkAABB.overlaps(otherAABB) === false) return;
 
-        let low = otherAABB.lowerBound.vsub(halfBlockSize);
-        let high = otherAABB.upperBound.vsub(halfBlockSize);
+        let low = otherAABB.lowerBound;
+        let high = otherAABB.upperBound;
         for (let x = Math.floor(low.x); x <= Math.ceil(high.x); x++) {
             if (x < chunkAABB.lowerBound.x || x >= chunkAABB.upperBound.x) continue;
             for (let y = Math.floor(low.y); y <= Math.ceil(high.y); y++) {
@@ -51,10 +51,11 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
         // console.log(bi.aabb.lowerBound);
 
         let map = bj.chunk.getMap();
+        let n = [];
         let br = this.chunkAABBCollision(bj.aabb, bi.aabb, (x, y, z) => {
             if (isBlockSolid(bj.chunk.getBlock(x, y, z, map))) {
                 let blockBody = this.bodyPool.init(x, y, z);
-
+                n.push([x,y,z]);
                 // override current contact material with one from material pairing w blockBody
                 this.currentContactMaterial = this.world.getContactMaterial(blockBody.material, bi.material)
                     || this.currentContactMaterial;
@@ -80,6 +81,7 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
             }
         });
 
+        //console.log(n.length);
         if (br && justTest) return true;
     }
 

@@ -243,8 +243,8 @@ void set_matrix_item(float *matrix, int width, int height, int scale) {
     float aspect = (float)width / height;
     float size = 64 * scale;
     float box = height / size / 2;
-    float xoffset = 1 - size / width * 2;
-    float yoffset = 1 - size / height * 2;
+    float xoffset = 1 - (width - size) / width * 2;
+    float yoffset = 1 - (size) / height * 2;
     mat_identity(a);
     mat_rotate(b, 0, 1, 0, -PI / 4);
     mat_multiply(a, b, a);

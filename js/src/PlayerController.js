@@ -1,5 +1,6 @@
 import { chunked } from '~/world/ChunkUtils';
 import CANNON from 'cannon';
+import Defs from '~/Defs';
 
 const DEFAULT_FOV = 85;
 const RUNNING_FOV = 100;
@@ -24,6 +25,9 @@ export default class PlayerController {
         this.running = false;
         this.ortho = false;
         this.fov = DEFAULT_FOV;
+        player.currentItem = 0;
+        this.buildMode = Defs.BUILD_MODE.SINGLE;
+        this.buildRot = 0;
 
         let canvas = document.querySelector('#canvas');
         canvas.addEventListener('mousedown', (evt) => {
@@ -37,6 +41,30 @@ export default class PlayerController {
                 && document.mozPointerLockElement !== canvas) return;
             this.onMouseMove(evt)
         });
+
+        document.addEventListener('wheel', (evt) => {
+            if (document.pointerLockElement !== canvas
+                && document.mozPointerLockElement !== canvas) return;
+
+            let d = Math.sign(evt.deltaY);
+            if (player.currentItem + d >= 0) {
+                player.currentItem += d;
+            }
+        });
+
+        // document.addEventListener('scroll', (evt) => {
+        //     if (document.pointerLockElement !== canvas
+        //         && document.mozPointerLockElement !== canvas) return;
+
+        //     window.scrollTo(0, 0); // can't stop propagation so stick to top
+        // });
+        
+        document.addEventListener('DOMMouseScroll', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+            e.cancelBubble = false;
+            return false;
+        }, false);
 
         document.addEventListener('keydown', (evt) => {
             if (document.pointerLockElement !== canvas
@@ -55,30 +83,77 @@ export default class PlayerController {
         });
     }
 
+    getActionedBlocks(x, y, z) {
+        let blocks = [];
+        if (this.buildMode === Defs.BUILD_MODE.SINGLE) {
+            blocks.push([x, y, z]);
+        } else if (this.buildMode === Defs.BUILD_MODE.FLOOR) {
+            blocks.push([x-1, y, z-1]);
+            blocks.push([x-1, y, z]);
+            blocks.push([x-1, y, z+1]);
+            blocks.push([x, y, z-1]);
+            blocks.push([x, y, z]);
+            blocks.push([x, y, z+1]);
+            blocks.push([x+1, y, z-1]);
+            blocks.push([x+1, y, z]);
+            blocks.push([x+1, y, z+1]);
+        } else if (this.buildMode === Defs.BUILD_MODE.WALL) {
+            if (Math.sin((this.player.rx + this.buildRot) % Math.PI) < 0.5) {
+                blocks.push([x-1, y-1, z]);
+                blocks.push([x-1, y, z]);
+                blocks.push([x-1, y+1, z]);
+                blocks.push([x, y-1, z]);
+                blocks.push([x, y, z]);
+                blocks.push([x, y+1, z]);
+                blocks.push([x+1, y-1, z]);
+                blocks.push([x+1, y, z]);
+                blocks.push([x+1, y+1, z]);
+            } else {
+                blocks.push([x, y-1, z-1]);
+                blocks.push([x, y, z-1]);
+                blocks.push([x, y+1, z-1]);
+                blocks.push([x, y-1, z]);
+                blocks.push([x, y, z]);
+                blocks.push([x, y+1, z]);
+                blocks.push([x, y-1, z+1]);
+                blocks.push([x, y, z+1]);
+                blocks.push([x, y+1, z+1]);
+            }
+        }
+
+        return blocks;
+    }
+
     onMouseDown(evt) {
         if (evt.button === 0) {
             let valid = this.inputInterface.on_left_click();
             if (valid) {
-                let x = this.clientCore.model.getMemoryValue('px');
-                let y = this.clientCore.model.getMemoryValue('py');
-                let z = this.clientCore.model.getMemoryValue('pz');
-                this.clientCore.world.modifyBlock(x, y, z, 0, 0);
+                let px = this.clientCore.model.getMemoryValue('px');
+                let py = this.clientCore.model.getMemoryValue('py');
+                let pz = this.clientCore.model.getMemoryValue('pz');
+                
+                for (let [x, y, z] of this.getActionedBlocks(px, py, pz)) {
+                    this.clientCore.world.modifyBlock(x, y, z, 0, 0);
 
-                let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
-                chunk.setBlock(x, y, z, 0, 0);
+                    let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
+                    chunk.setBlock(x, y, z, 0, 0);
+                }
             }
         } else if (evt.button === 1) {
             this.inputInterface.on_middle_click();
         } else if (evt.button === 2) {
             var valid = this.inputInterface.on_right_click();
             if (valid) {
-                let x = this.clientCore.model.getMemoryValue('px');
-                let y = this.clientCore.model.getMemoryValue('py');
-                let z = this.clientCore.model.getMemoryValue('pz');
-                this.clientCore.world.modifyBlock(x, y, z, 0, 1);
+                let px = this.clientCore.model.getMemoryValue('px');
+                let py = this.clientCore.model.getMemoryValue('py');
+                let pz = this.clientCore.model.getMemoryValue('pz');
+                
+                for (let [x, y, z] of this.getActionedBlocks(px, py, pz)) {
+                    this.clientCore.world.modifyBlock(x, y, z, 0, this.player.currentItem);
 
-                let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
-                chunk.setBlock(x, y, z, 0, 1);
+                    let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
+                    chunk.setBlock(x, y, z, 0, this.player.currentItem);
+                }
             }
         }
     }
@@ -115,6 +190,10 @@ export default class PlayerController {
         else if (evt.code == 'F1' && !pressed) {
             this.ortho = !this.ortho;
             this.clientCore.model.setMemoryValue('ortho', this.ortho? 30 : 0);
+        } else if (evt.code == 'KeyQ' && !pressed) {
+            this.buildMode = ++this.buildMode % Object.keys(Defs.BUILD_MODE).length;
+        } else if (evt.code == 'KeyR' && !pressed) {
+            this.buildRot = (this.buildRot + Math.PI / 2) % (Math.PI * 2);
         } else if (evt.code == 'KeyW') this.up = pressed;
         else if (evt.code == 'KeyS') this.down = pressed;
         else if (evt.code == 'KeyA') this.left = pressed;
@@ -175,5 +254,7 @@ export default class PlayerController {
         let targetFov = this.running? RUNNING_FOV : DEFAULT_FOV;
         this.fov += (targetFov - this.fov) * 0.1;
         this.clientCore.model.setMemoryValue('fov', this.fov);
+        this.clientCore.model.setMemoryValue('build_mode', this.buildMode);
+        this.clientCore.model.setMemoryValue('build_rot', Math.sin((this.player.rx + this.buildRot) % Math.PI) < 0.5);
     }
 }

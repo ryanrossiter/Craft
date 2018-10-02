@@ -7,49 +7,55 @@ export default class ChatComponent extends Component {
 
     build() {
         let element = document.createElement('div');
-        element.style.position = 'absolute';
-        element.style.left = 0;
-        element.style.bottom = 0;
-        element.style.width = "100%";
-        element.style.maxWidth = "400px";
-        element.style.height = "230px";
-        element.style.border = '2px solid rgba(20, 20, 20, 0.5)';
+        Object.assign(element.style, {
+            position: 'absolute',
+            left: 0,
+            bottom: 0,
+            width: "100%",
+            maxWidth: "400px",
+            height: "230px",
+            border: '2px solid rgba(20, 20, 20, 0.5)',
+        });
 
 
         this.textArea = document.createElement('textarea');
         this.textArea.readOnly = true;
-        this.textArea.style.boxSizing = 'border-box';
-        this.textArea.style.resize = "none";
-        this.textArea.style.width = '100%';
-        this.textArea.style.height = "calc(100% - 25px)"; 
-        this.textArea.style.borderWidth = 0;
-        this.textArea.style.padding = '5px';
-        this.textArea.style.margin = 0;
-        this.textArea.style.backgroundColor = 'rgba(30, 30, 30, 0.4)';
-        this.textArea.style.color = '#FFF';
-        this.textArea.style.fontSize = '17px';
-        this.textArea.style.fontFamily = "'Amaranth', sans-serif";
+        Object.assign(this.textArea.style, {
+            boxSizing: 'border-box',
+            resize: "none",
+            width: '100%',
+            height: "calc(100% - 25px)",
+            borderWidth: 0,
+            padding: '5px',
+            margin: 0,
+            backgroundColor: 'rgba(30, 30, 30, 0.4)',
+            color: '#FFF',
+            fontSize: '17px',
+            fontFamily: "'Amaranth', sans-serif",
+        });
         element.appendChild(this.textArea);
 
         this.typeArea = document.createElement('input');
         this.typeArea.type = 'text';
         this.typeArea.placeholder = 'Chat here';
-        this.typeArea.style.position = 'absolute';
-        this.typeArea.style.boxSizing = 'border-box';
-        this.typeArea.style.width = '100%';
-        this.typeArea.style.height = "25px";
-        this.typeArea.style.bottom = 0;
-        this.typeArea.style.left = 0; 
-        this.typeArea.style.borderWidth = 0;
-        this.typeArea.style.borderTopWidth = '2px';
-        this.typeArea.style.padding = 0;
-        this.typeArea.style.paddingLeft = '5px';
-        this.typeArea.style.paddingRight = '5px';
-        this.typeArea.style.margin = 0;
-        this.typeArea.style.backgroundColor = 'rgba(30, 30, 30, 0.4)';
-        this.typeArea.style.color = '#FFF';
-        this.typeArea.style.fontSize = '17px';
-        this.typeArea.style.fontFamily = "'Amaranth', sans-serif";
+        Object.assign(this.typeArea.style, {
+            position: 'absolute',
+            boxSizing: 'border-box',
+            width: '100%',
+            height: "25px",
+            bottom: 0,
+            left: 0,
+            borderWidth: 0,
+            borderTopWidth: '2px',
+            padding: 0,
+            paddingLeft: '5px',
+            paddingRight: '5px',
+            margin: 0,
+            backgroundColor: 'rgba(30, 30, 30, 0.4)',
+            color: '#FFF',
+            fontSize: '17px',
+            fontFamily: "'Amaranth', sans-serif",
+        });
         this.typeArea.addEventListener('keydown', (evt) => {
             if (evt.code === 'Enter') {
                 if (this.typeArea.value.length > 0) {

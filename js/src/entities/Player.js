@@ -3,10 +3,12 @@ import PhysicsEntity from '~/entities/PhysicsEntity';
 import EntityTypes from '~/entities/EntityTypes';
 import CANNON from 'cannon';
 import physicsMaterial from '~/world/physicsMaterial';
+import Defs from '~/Defs';
 
 export default class Player extends SerializedObject(PhysicsEntity,
     EntityTypes.PLAYER, {
-    name: "Nemp"
+    name: "Nemp",
+    currentItem: Defs.BUILD_MODE.SINGLE
 }) {
     constructor(data, mem) {
         super(data, mem + 4 + 32);

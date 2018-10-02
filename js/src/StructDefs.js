@@ -52,6 +52,7 @@ export const StateStruct = [
 
 export const PlayerStruct = [
     { name: 'id', type: 'i32' },
+    { name: 'current_item', type: 'i32' },
     { name: 'name', type: 'char', length: 32 },
     { name: 'state', type: 'struct', struct: StateStruct },
     { name: 'buffer', type: 'i32' }
@@ -66,7 +67,8 @@ export const ClientModelStruct = [
     { name: 'sign_radius', type: 'i32' },
     { name: 'width', type: 'i32' },
     { name: 'height', type: 'i32' },
-    { name: 'item_index', type: 'i32' },
+    { name: 'build_mode', type: 'i32' },
+    { name: 'build_rot', type: 'i32' },
     { name: 'scale', type: 'i32' },
     { name: 'ortho', type: 'i32' },
     { name: 'fov', type: 'float' },

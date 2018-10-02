@@ -11,6 +11,11 @@ const Defs = {
     SHAPE_TYPE_CHUNK: 512, // cannon.js shape type
     TIME_DAY: 1000 * 60 * 3,
     TIME_NIGHT: 1000 * 60 * 10,
+    BUILD_MODE: {
+        SINGLE: 0,
+        FLOOR: 1,
+        WALL: 2,
+    }
 }
 
 export default Defs;
