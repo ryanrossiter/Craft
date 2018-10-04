@@ -23,7 +23,7 @@ export default class PlayerController {
         this.flying = false;
         this.jumping = false;
         this.running = false;
-        this.ortho = false;
+        this.ortho = 0;
         this.fov = DEFAULT_FOV;
         player.currentItem = 0;
         this.buildMode = Defs.BUILD_MODE.SINGLE;
@@ -135,8 +135,7 @@ export default class PlayerController {
                 for (let [x, y, z] of this.getActionedBlocks(px, py, pz)) {
                     this.clientCore.world.modifyBlock(x, y, z, 0, 0);
 
-                    let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
-                    chunk.setBlock(x, y, z, 0, 0);
+                    this.clientCore.chunkManager.setBlock(x, y, z, 0, 0);
                 }
             }
         } else if (evt.button === 1) {
@@ -151,8 +150,7 @@ export default class PlayerController {
                 for (let [x, y, z] of this.getActionedBlocks(px, py, pz)) {
                     this.clientCore.world.modifyBlock(x, y, z, 0, this.player.currentItem);
 
-                    let chunk = this.clientCore.chunkManager.getChunk(chunked(x), chunked(z), chunked(y));
-                    chunk.setBlock(x, y, z, 0, this.player.currentItem);
+                    this.clientCore.chunkManager.setBlock(x, y, z, 0, this.player.currentItem);
                 }
             }
         }
@@ -188,8 +186,9 @@ export default class PlayerController {
             }
         } else if (evt.code == 'ShiftLeft') this.running = pressed;
         else if (evt.code == 'F1' && !pressed) {
-            this.ortho = !this.ortho;
-            this.clientCore.model.setMemoryValue('ortho', this.ortho? 30 : 0);
+            this.ortho += 25;
+            this.ortho %= 100;
+            this.clientCore.model.setMemoryValue('ortho', this.ortho);
         } else if (evt.code == 'KeyQ' && !pressed) {
             this.buildMode = ++this.buildMode % Object.keys(Defs.BUILD_MODE).length;
         } else if (evt.code == 'KeyR' && !pressed) {

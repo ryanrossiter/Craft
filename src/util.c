@@ -56,7 +56,7 @@ void del_buffer(GLuint buffer) {
 }
 
 GLfloat *malloc_faces(int components, int faces) {
-    return malloc(sizeof(GLfloat) * 6 * components * faces);
+    return malloc(sizeof(GLfloat) * components * faces * 6);
 }
 
 GLuint gen_faces(int components, int faces, GLfloat *data) {

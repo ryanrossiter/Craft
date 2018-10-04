@@ -15,6 +15,8 @@ varying float fragment_light;
 varying float fog_factor;
 varying float fog_height;
 varying float diffuse;
+varying float w;
+varying float opacity;
 
 const float pi = 3.14159265;
 
@@ -23,7 +25,10 @@ void main() {
     if (color == vec3(1.0, 0.0, 1.0)) {
         discard;
     }
-    bool cloud = color == vec3(1.0, 1.0, 1.0);
+
+    int ww = int(abs(w)+0.5); // round it
+    bool cloud = ww == 16;
+    bool water = ww == 12;
     if (cloud && bool(ortho)) {
         discard;
     }
@@ -38,5 +43,5 @@ void main() {
     color = clamp(color * light * ao, vec3(0.0), vec3(1.0));
     vec3 sky_color = vec3(texture2D(sky_sampler, vec2(timer, fog_height)));
     color = mix(color, sky_color, fog_factor);
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, opacity);
 }

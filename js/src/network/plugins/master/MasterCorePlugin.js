@@ -31,7 +31,7 @@ export default class MasterCorePlugin extends ServerPlugin {
 
             console.log(`Player ${name} joined.`);
             this.masterCore.entities.sendAllEntities(socket);
-            this.masterCore.entities.create(EntityTypes.PLAYER, { name, player: socket.id, y: 25 });
+            this.masterCore.entities.create(EntityTypes.PLAYER, { name, player: socket.id, y: 35 });
         });
 
         registerHandler('disconnect', (socket) => {

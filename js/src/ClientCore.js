@@ -37,7 +37,7 @@ export default class ClientCore {
 
         this.server = new ClientServer();
         this.clientCorePlugin = new ClientCorePlugin(this);
-        this.gameTime = new TimeKeeperPlugin();
+        this.gameTime = new TimeKeeperPlugin(this.model);
         this.entities = new EntityPlugin(this.gameTime,
             (e) => this.onCreateEntity(e), (e) => this.onDeleteEntity(e));
         this.world = new WorldPlugin();
@@ -103,6 +103,8 @@ export default class ClientCore {
     runFrame(now) {
         let delta = now - this.lastFrame;
         this.lastFrame = now;
+
+        this.gameTime.update();
 
         if (this.chunkManager && this.playerController) {
             let p = chunked(this.playerController.player.x);

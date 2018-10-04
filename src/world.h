@@ -5,6 +5,7 @@
 #include "sign.h"
 #include "config.h"
 #include "noise.h"
+#include "math.h"
 
 typedef struct {
     int p;

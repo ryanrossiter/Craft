@@ -13,7 +13,7 @@
 #define SNOW 9
 #define GLASS 10
 #define COBBLE 11
-#define LIGHT_STONE 12
+#define WATER 12
 #define DARK_STONE 13
 #define CHEST 14
 #define LEAVES 15

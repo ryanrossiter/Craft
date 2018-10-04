@@ -35,6 +35,8 @@
 #define BUILD_MODE_FLOOR 1
 #define BUILD_MODE_WALL 2
 
+#define BLOCK_SHADER_COMPONENTS 15
+
 typedef struct {
     Chunk c;
     int faces;
@@ -99,6 +101,8 @@ typedef struct {
     GLuint extra2;
     GLuint extra3;
     GLuint extra4;
+    GLuint extra5;
+    GLuint extra6;
 } Attrib;
 
 typedef struct {
@@ -220,7 +224,7 @@ GLuint gen_sky_buffer() {
 }
 
 GLuint gen_cube_buffer(float x, float y, float z, float n, int w) {
-    GLfloat *data = malloc_faces(10, 6);
+    GLfloat *data = malloc_faces(BLOCK_SHADER_COMPONENTS, 6);
     float ao[6][4] = {0};
     float light[6][4] = {
         {0.5, 0.5, 0.5, 0.5},
@@ -230,22 +234,22 @@ GLuint gen_cube_buffer(float x, float y, float z, float n, int w) {
         {0.5, 0.5, 0.5, 0.5},
         {0.5, 0.5, 0.5, 0.5}
     };
-    make_cube(data, ao, light, 1, 1, 1, 1, 1, 1, x, y, z, n, w);
-    return gen_faces(10, 6, data);
+    make_cube(data, ao, light, 1, 1, 1, 1, 1, 1, x, y, z, n, w, 0);
+    return gen_faces(BLOCK_SHADER_COMPONENTS, 6, data);
 }
 
 GLuint gen_plant_buffer(float x, float y, float z, float n, int w) {
-    GLfloat *data = malloc_faces(10, 4);
+    GLfloat *data = malloc_faces(BLOCK_SHADER_COMPONENTS, 4);
     float ao = 0;
     float light = 1;
     make_plant(data, ao, light, x, y, z, n, w, 45);
-    return gen_faces(10, 4, data);
+    return gen_faces(BLOCK_SHADER_COMPONENTS, 4, data);
 }
 
 GLuint gen_player_buffer(float x, float y, float z, float rx, float ry) {
-    GLfloat *data = malloc_faces(10, 6);
+    GLfloat *data = malloc_faces(BLOCK_SHADER_COMPONENTS, 6);
     make_player(data, x, y, z, rx, ry);
-    return gen_faces(10, 6, data);
+    return gen_faces(BLOCK_SHADER_COMPONENTS, 6, data);
 }
 
 void gen_player_buffers() {
@@ -272,21 +276,47 @@ GLuint gen_text_buffer(float x, float y, float n, char *text) {
     return gen_faces(4, length, data);
 }
 
+//void draw_triangles_3d_ao(Attrib *attrib, GLuint buffer, int count) {
+//    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+//    glEnableVertexAttribArray(attrib->position);
+//    glEnableVertexAttribArray(attrib->normal);
+//    glEnableVertexAttribArray(attrib->uv);
+//    glVertexAttribPointer(attrib->position, 3, GL_FLOAT, GL_FALSE,
+//                          sizeof(GLfloat) * 10, 0);
+//    glVertexAttribPointer(attrib->normal, 3, GL_FLOAT, GL_FALSE,
+//                          sizeof(GLfloat) * 10, (GLvoid *)(sizeof(GLfloat) * 3));
+//    glVertexAttribPointer(attrib->uv, 4, GL_FLOAT, GL_FALSE,
+//                          sizeof(GLfloat) * 10, (GLvoid *)(sizeof(GLfloat) * 6));
+//    glDrawArrays(GL_TRIANGLES, 0, count);
+//    glDisableVertexAttribArray(attrib->position);
+//    glDisableVertexAttribArray(attrib->normal);
+//    glDisableVertexAttribArray(attrib->uv);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//}
+
 void draw_triangles_3d_ao(Attrib *attrib, GLuint buffer, int count) {
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glEnableVertexAttribArray(attrib->position);
     glEnableVertexAttribArray(attrib->normal);
     glEnableVertexAttribArray(attrib->uv);
+    glEnableVertexAttribArray(attrib->extra5);
+    glEnableVertexAttribArray(attrib->extra6);
     glVertexAttribPointer(attrib->position, 3, GL_FLOAT, GL_FALSE,
-        sizeof(GLfloat) * 10, 0);
+        sizeof(GLfloat) * BLOCK_SHADER_COMPONENTS, 0);
     glVertexAttribPointer(attrib->normal, 3, GL_FLOAT, GL_FALSE,
-        sizeof(GLfloat) * 10, (GLvoid *)(sizeof(GLfloat) * 3));
+        sizeof(GLfloat) * BLOCK_SHADER_COMPONENTS, (GLvoid *)(sizeof(GLfloat) * 3));
     glVertexAttribPointer(attrib->uv, 4, GL_FLOAT, GL_FALSE,
-        sizeof(GLfloat) * 10, (GLvoid *)(sizeof(GLfloat) * 6));
+        sizeof(GLfloat) * BLOCK_SHADER_COMPONENTS, (GLvoid *)(sizeof(GLfloat) * 6));
+    glVertexAttribPointer(attrib->extra5, 2, GL_FLOAT, GL_FALSE,
+        sizeof(GLfloat) * BLOCK_SHADER_COMPONENTS, (GLvoid *)(sizeof(GLfloat) * 10));
+    glVertexAttribPointer(attrib->extra6, 3, GL_FLOAT, GL_FALSE,
+        sizeof(GLfloat) * BLOCK_SHADER_COMPONENTS, (GLvoid *)(sizeof(GLfloat) * 12));
     glDrawArrays(GL_TRIANGLES, 0, count);
     glDisableVertexAttribArray(attrib->position);
     glDisableVertexAttribArray(attrib->normal);
     glDisableVertexAttribArray(attrib->uv);
+    glDisableVertexAttribArray(attrib->extra5);
+    glDisableVertexAttribArray(attrib->extra6);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -826,7 +856,7 @@ void occlusion(
 #define XZ(x, z) ((x) * CG_SIZE + (z))
 
 void light_fill(
-    char *opaque, char *light,
+    char *transparent, char *light,
     int x, int y, int z, int w, int force)
 {
     if (x + w < CG_LO || z + w < CG_LO || y + w < CG_LO) {
@@ -838,20 +868,20 @@ void light_fill(
     if (light[XYZ(x, y, z)] >= w) {
         return;
     }
-    if (!force && opaque[XYZ(x, y, z)]) {
+    if (!force && !transparent[XYZ(x, y, z)]) {
         return;
     }
     light[XYZ(x, y, z)] = (char)w--;
-    light_fill(opaque, light, x - 1, y, z, w, 0);
-    light_fill(opaque, light, x + 1, y, z, w, 0);
-    light_fill(opaque, light, x, y - 1, z, w, 0);
-    light_fill(opaque, light, x, y + 1, z, w, 0);
-    light_fill(opaque, light, x, y, z - 1, w, 0);
-    light_fill(opaque, light, x, y, z + 1, w, 0);
+    light_fill(transparent, light, x - 1, y, z, w, 0);
+    light_fill(transparent, light, x + 1, y, z, w, 0);
+    light_fill(transparent, light, x, y - 1, z, w, 0);
+    light_fill(transparent, light, x, y + 1, z, w, 0);
+    light_fill(transparent, light, x, y, z - 1, w, 0);
+    light_fill(transparent, light, x, y, z + 1, w, 0);
 }
 
 void compute_chunk(WorkerItem *item) {
-    char *opaque = (char *)calloc(CG_SIZE * CG_SIZE * CG_SIZE, sizeof(char));
+    char *transparent = (char *)calloc(CG_SIZE * CG_SIZE * CG_SIZE, sizeof(char));
     char *light = (char *)calloc(CG_SIZE * CG_SIZE * CG_SIZE, sizeof(char));
     char *highest = (char *)calloc(CG_SIZE * CG_SIZE, sizeof(char));
 
@@ -896,8 +926,15 @@ void compute_chunk(WorkerItem *item) {
                         continue;
                     }
                     // END TODO
-                    opaque[XYZ(x, y, z)] = !is_transparent(w);
-                    if (opaque[XYZ(x, y, z)]) {
+                    if (w == 0) { // air
+                        transparent[XYZ(x, y, z)] = 2;
+                    } else if (w == WATER) {
+                        transparent[XYZ(x, y, z)] = 4;
+                    } else {
+                        transparent[XYZ(x, y, z)] = is_transparent(w);
+                    }
+
+                    if (!transparent[XYZ(x, y, z)]) {
                         highest[XZ(x, z)] = (char) MAX(highest[XZ(x, z)], y);
                     }
                 } END_MAP_FOR_EACH;
@@ -918,7 +955,7 @@ void compute_chunk(WorkerItem *item) {
                         int x = ex - ox;
                         int y = ey - oy;
                         int z = ez - oz;
-                        light_fill(opaque, light, x, y, z, ew, 1);
+                        light_fill(transparent, light, x, y, z, ew, 1);
                     } END_MAP_FOR_EACH;
                 }
             }
@@ -938,15 +975,20 @@ void compute_chunk(WorkerItem *item) {
         int x = ex - ox;
         int y = ey - oy;
         int z = ez - oz;
-        int f1 = !opaque[XYZ(x - 1, y, z)];
-        int f2 = !opaque[XYZ(x + 1, y, z)];
-        int f3 = !opaque[XYZ(x, y + 1, z)];
-        int f4 = !opaque[XYZ(x, y - 1, z)];
-        int f5 = !opaque[XYZ(x, y, z - 1)];
-        int f6 = !opaque[XYZ(x, y, z + 1)];
+        int self = transparent[XYZ(x, y, z)];
+        // if transparent, only make faces with transparent blocks that aren't the transp. layer
+        int f1 = MIN(1, transparent[XYZ(x - 1, y, z)] & (self? 0xF ^ self : 0xF));
+        int f2 = MIN(1, transparent[XYZ(x + 1, y, z)] & (self? 0xF ^ self : 0xF));
+        int f3 = MIN(1, transparent[XYZ(x, y + 1, z)] & (self? 0xF ^ self : 0xF));
+        int f4 = MIN(1, transparent[XYZ(x, y - 1, z)] & (self? 0xF ^ self : 0xF));
+        int f5 = MIN(1, transparent[XYZ(x, y, z - 1)] & (self? 0xF ^ self : 0xF));
+        int f6 = MIN(1, transparent[XYZ(x, y, z + 1)] & (self? 0xF ^ self : 0xF));
         int total = f1 + f2 + f3 + f4 + f5 + f6;
         if (total == 0) {
             continue;
+        } else if (self) {
+            // render the inner faces for transparent blocks, doubling the number of faces
+            total *= 2;
         }
         if (is_plant(ew)) {
             total = 4;
@@ -957,7 +999,7 @@ void compute_chunk(WorkerItem *item) {
     } END_MAP_FOR_EACH;
 
     // generate geometry
-    GLfloat *data = malloc_faces(10, faces);
+    GLfloat *data = malloc_faces(BLOCK_SHADER_COMPONENTS, faces);
     int offset = 0;
     MAP_FOR_EACH(map, ex, ey, ez, ew) {
         if (ew <= 0) {
@@ -966,16 +1008,23 @@ void compute_chunk(WorkerItem *item) {
         int x = ex - ox;
         int y = ey - oy;
         int z = ez - oz;
-        int f1 = !opaque[XYZ(x - 1, y, z)];
-        int f2 = !opaque[XYZ(x + 1, y, z)];
-        int f3 = !opaque[XYZ(x, y + 1, z)];
-        int f4 = !opaque[XYZ(x, y - 1, z)];
-        int f5 = !opaque[XYZ(x, y, z - 1)];
-        int f6 = !opaque[XYZ(x, y, z + 1)];
+        int self = transparent[XYZ(x, y, z)];
+        // if transparent, only make faces with transparent blocks that aren't the transp. layer
+        int f1 = MIN(1, transparent[XYZ(x - 1, y, z)] & (self? 0xF ^ self : 0xF));
+        int f2 = MIN(1, transparent[XYZ(x + 1, y, z)] & (self? 0xF ^ self : 0xF));
+        int f3 = MIN(1, transparent[XYZ(x, y + 1, z)] & (self? 0xF ^ self : 0xF));
+        int f4 = MIN(1, transparent[XYZ(x, y - 1, z)] & (self? 0xF ^ self : 0xF));
+        int f5 = MIN(1, transparent[XYZ(x, y, z - 1)] & (self? 0xF ^ self : 0xF));
+        int f6 = MIN(1, transparent[XYZ(x, y, z + 1)] & (self? 0xF ^ self : 0xF));
+
         int total = f1 + f2 + f3 + f4 + f5 + f6;
         if (total == 0) {
             continue;
+        } else if (self) {
+            // render the inner faces for transparent blocks, doubling the number of faces
+            total *= 2;
         }
+
         char neighbors[27] = {0};
         char lights[27] = {0};
         float shades[27] = {0};
@@ -983,12 +1032,12 @@ void compute_chunk(WorkerItem *item) {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dz = -1; dz <= 1; dz++) {
-                    neighbors[index] = opaque[XYZ(x + dx, y + dy, z + dz)];
+                    neighbors[index] = !transparent[XYZ(x + dx, y + dy, z + dz)];
                     lights[index] = light[XYZ(x + dx, y + dy, z + dz)];
                     shades[index] = 0;
                     if (y + dy <= highest[XZ(x + dx, z + dz)]) {
                         for (int oy = 0; oy < 8; oy++) {
-                            if (opaque[XYZ(x + dx, y + dy + oy, z + dz)]) {
+                            if (!transparent[XYZ(x + dx, y + dy + oy, z + dz)]) {
                                 shades[index] = 1.0f - oy * 0.125f;
                                 break;
                             }
@@ -1020,12 +1069,12 @@ void compute_chunk(WorkerItem *item) {
             make_cube(
                 data + offset, ao, light,
                 f1, f2, f3, f4, f5, f6,
-                ex, ey, ez, 0.5, ew);
+                ex, ey, ez, 0.5, ew, self);
         }
-        offset += total * 60;
+        offset += total * 6 * BLOCK_SHADER_COMPONENTS;
     } END_MAP_FOR_EACH;
 
-    free(opaque);
+    free(transparent);
     free(light);
     free(highest);
 
@@ -1036,7 +1085,7 @@ void compute_chunk(WorkerItem *item) {
 void generate_chunk(ClientChunk *chunk, WorkerItem *item) {
     chunk->faces = item->faces;
     del_buffer(chunk->buffer);
-    chunk->buffer = gen_faces(10, item->faces, item->data);
+    chunk->buffer = gen_faces(BLOCK_SHADER_COMPONENTS, item->faces, item->data);
     gen_sign_buffer(chunk);
 }
 
@@ -1930,6 +1979,8 @@ int init() {
     block_attrib.position = (GLuint)glGetAttribLocation(program, "position");
     block_attrib.normal = (GLuint)glGetAttribLocation(program, "normal");
     block_attrib.uv = (GLuint)glGetAttribLocation(program, "uv");
+    block_attrib.extra5 = (GLuint)glGetAttribLocation(program, "ws");
+    block_attrib.extra6 = (GLuint)glGetAttribLocation(program, "block_pos");
     block_attrib.matrix = (GLuint)glGetUniformLocation(program, "matrix");
     block_attrib.sampler = (GLuint)glGetUniformLocation(program, "sampler");
     block_attrib.extra1 = (GLuint)glGetUniformLocation(program, "sky_sampler");

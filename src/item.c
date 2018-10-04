@@ -14,7 +14,7 @@ const int items[] = {
     SNOW,
     GLASS,
     COBBLE,
-    LIGHT_STONE,
+    WATER,
     DARK_STONE,
     CHEST,
     LEAVES,
@@ -182,6 +182,7 @@ int is_transparent(int w) {
         case EMPTY:
         case GLASS:
         case LEAVES:
+        case WATER:
             return 1;
         default:
             return 0;

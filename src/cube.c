@@ -8,7 +8,7 @@ void make_cube_faces(
     float *data, float ao[6][4], float light[6][4],
     int left, int right, int top, int bottom, int front, int back,
     int wleft, int wright, int wtop, int wbottom, int wfront, int wback,
-    float x, float y, float z, float n)
+    float x, float y, float z, float n, int w, int double_faces)
 {
     static const float positions[6][4][3] = {
         {{-1, -1, -1}, {-1, -1, +1}, {-1, +1, -1}, {-1, +1, +1}},
@@ -55,6 +55,7 @@ void make_cube_faces(
     float a = 0 + 1 / 2048.0;
     float b = s - 1 / 2048.0;
     int faces[6] = {left, right, top, bottom, front, back};
+    int face_mask = left << 0 | right << 1 | top << 2 | bottom << 3 | front << 4 | back << 5; // should fit in a float just fine
     int tiles[6] = {wleft, wright, wtop, wbottom, wfront, wback};
     for (int i = 0; i < 6; i++) {
         if (faces[i] == 0) {
@@ -63,7 +64,8 @@ void make_cube_faces(
         float du = (tiles[i] % 16) * s;
         float dv = (tiles[i] / 16) * s;
         int flip = ao[i][0] + ao[i][3] > ao[i][1] + ao[i][2];
-        for (int v = 0; v < 6; v++) {
+        for (int vv = double_faces? -6 : 0; vv < 6; vv++) {
+            int v = ABS(vv + (vv < 0? 1 : 0)); // 5,4,3,2,1,0,0,1,2,3,4,5
             int j = flip ? flipped[i][v] : indices[i][v];
             *(d++) = x + n * positions[i][j][0];
             *(d++) = y + n * positions[i][j][1];
@@ -75,6 +77,11 @@ void make_cube_faces(
             *(d++) = dv + (uvs[i][j][1] ? b : a);
             *(d++) = ao[i][j];
             *(d++) = light[i][j];
+            *(d++) = (float)w;
+            *(d++) = (float)face_mask;
+            *(d++) = positions[i][j][0];
+            *(d++) = positions[i][j][1];
+            *(d++) = positions[i][j][2];
         }
     }
 }
@@ -82,7 +89,7 @@ void make_cube_faces(
 void make_cube(
     float *data, float ao[6][4], float light[6][4],
     int left, int right, int top, int bottom, int front, int back,
-    float x, float y, float z, float n, int w)
+    float x, float y, float z, float n, int w, int double_faces)
 {
     int wleft = blocks[w][0];
     int wright = blocks[w][1];
@@ -94,7 +101,7 @@ void make_cube(
         data, ao, light,
         left, right, top, bottom, front, back,
         wleft, wright, wtop, wbottom, wfront, wback,
-        x, y, z, n);
+        x, y, z, n, w, double_faces);
 }
 
 void make_plant(
@@ -144,6 +151,11 @@ void make_plant(
             *(d++) = dv + (uvs[i][j][1] ? b : a);
             *(d++) = ao;
             *(d++) = light;
+            *(d++) = (float)w;
+            *(d++) = 0.f;
+            *(d++) = positions[i][j][0];
+            *(d++) = positions[i][j][1];
+            *(d++) = positions[i][j][2];
         }
     }
     float ma[16];
@@ -174,7 +186,7 @@ void make_player(
         data, ao, light,
         1, 1, 1, 1, 1, 1,
         226, 224, 241, 209, 225, 227,
-        0, 0, 0, 0.4);
+        0, 0, 0, 0.4, 0, 0);
     float ma[16];
     float mb[16];
     mat_identity(ma);
