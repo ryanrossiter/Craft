@@ -1,13 +1,19 @@
 import { chunked } from '~/world/ChunkUtils';
-import CANNON from 'cannon';
+// import CANNON from 'cannon';
+import vec3 from 'gl-vec3';
 import Defs from '~/Defs';
 
 const DEFAULT_FOV = 85;
 const RUNNING_FOV = 100;
-const ACCEL = 1.4;
-const RUN_ACCEL = 3;
+const SPEED = 10;
+const RUN_SPEED = 15;
 const JUMP_TIMER = 300;
-const JUMP_FORCE = 15;
+const JUMP_FORCE = 20;
+const STANDING_FRICTION = 50;
+const RUNNING_FRICTION = 0;
+const MOVE_FORCE = 30;
+const AIR_MOVE_MULT = 0.5;
+const RESPONSIVENESS = 15;
 
 export default class PlayerController {
     constructor(player, clientCore) {
@@ -207,7 +213,7 @@ export default class PlayerController {
 
     getMotionVector() {
         if (this.dx === 0 && this.dz === 0) {
-            return new CANNON.Vec3(0,0,0);
+            return [0,0,0];
         }
 
         let strafe = Math.atan2(this.dz, this.dx);
@@ -223,27 +229,58 @@ export default class PlayerController {
             if (this.dz > 0) {
                 y = -y;
             }
-            return new CANNON.Vec3(Math.cos(this.player.rx + strafe) * m, y, Math.sin(this.player.rx + strafe) * m);
+            return [Math.cos(this.player.rx + strafe) * m, y, Math.sin(this.player.rx + strafe) * m];
         } else {
-            return new CANNON.Vec3(Math.cos(this.player.rx + strafe), 0, Math.sin(this.player.rx + strafe));
+            return [Math.cos(this.player.rx + strafe), 0, Math.sin(this.player.rx + strafe)];
         }
     }
 
     update(delta) {
-        let accel = (this.running? RUN_ACCEL : ACCEL);
-        let motion = this.getMotionVector().scale(accel * delta);
-        if (this.flying) {
-            // I have no idea why you gotta multiply mass by 3
-            motion.vsub(this.clientCore.physics.gravity.scale(this.player.body.mass * 3), motion);
-        }
+        let onGround = (this.player.body.atRestY() < 0);
+        if (this.up || this.down || this.left || this.right) {
+            
+            // if (this.flying) {
+            //     // I have no idea why you gotta multiply mass by 3
+            //     motion.vsub(this.clientCore.physics.gravity.scale(this.player.body.mass * 3), motion);
+            // }
 
-        this.player.body.force.vadd(motion, this.player.body.force);
+            var speed = (this.running? RUN_SPEED : SPEED);
+            let motion = vec3.create();
+            vec3.scale(motion, this.getMotionVector(), speed);
+
+            // push vector to achieve desired speed & dir
+            // following code to adjust 2D velocity to desired amount is patterned on Quake: 
+            // https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/bg_pmove.c#L275
+            let push = vec3.create();
+            vec3.subtract(push, motion, this.player.body.velocity);
+            push[1] = 0;
+            var pushLen = vec3.length(push);
+            vec3.normalize(push, push);
+
+            if (pushLen > 0) {
+                // pushing force vector
+                var canPush = MOVE_FORCE;
+                if (!onGround) canPush *= AIR_MOVE_MULT;
+
+                // apply final force
+                var pushAmt = RESPONSIVENESS * pushLen;
+                if (canPush > pushAmt) canPush = pushAmt;
+
+                vec3.scale(push, push, canPush);
+                this.player.body.applyForce(push);
+            }
+
+            // different friction when not moving
+            // idea from Sonic: http://info.sonicretro.org/SPG:Running
+            this.player.body.friction = RUNNING_FRICTION;
+        } else {
+            this.player.body.friction = STANDING_FRICTION;
+        }
 
         if (this.jumping > 0) {
             let jump_delta = Math.min(delta, this.jumping);
             let jump_fac = this.jumping / JUMP_TIMER;
-            this.player.body.force.vadd(new CANNON.Vec3(0, JUMP_FORCE * jump_fac * jump_delta, 0),
-                this.player.body.force);
+            this.player.body.applyForce([0, JUMP_FORCE * jump_fac * jump_delta, 0]);
             this.jumping -= delta;
         } else {
             this.jumping = 0;

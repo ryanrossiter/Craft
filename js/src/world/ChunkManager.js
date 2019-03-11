@@ -3,9 +3,9 @@ import Chunk from '~/world/Chunk';
 import { chunkKey, chunked } from '~/world/ChunkUtils';
 
 export default class ChunkManager {
-    constructor(worldInterface, physics, chunkLoader) {
+    constructor(worldInterface, chunkLoader) {
         this.worldInterface = worldInterface;
-        this.physics = physics;
+        // this.physics = physics;
         this.chunkLoader = chunkLoader;
         this.chunks = {};
     }
@@ -28,7 +28,7 @@ export default class ChunkManager {
         this.chunkLoader.unloadChunk(chunk);
         this._deleteChunk(chunk);
         delete this.chunks[chunkKey(chunk.p, chunk.q, chunk.r)];
-        this.physics.removeBody(chunk.body);
+        // this.physics.removeBody(chunk.body);
         chunk.body = null;
     }
 
@@ -38,7 +38,7 @@ export default class ChunkManager {
         let chunk = this._initChunk(p, q, r);
         this.chunks[chunkKey(p, q, r)] = chunk;
         await this.chunkLoader.loadChunk(chunk);
-        this.physics.addBody(chunk.body);
+        // this.physics.addBody(chunk.body);
         return chunk;
     }
 

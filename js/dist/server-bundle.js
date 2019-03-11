@@ -97,6 +97,559 @@ eval("/* WEBPACK VAR INJECTION */(function(__dirname) {// The Module object: Our
 
 /***/ }),
 
+/***/ "./node_modules/aabb-3d/index.js":
+/*!***************************************!*\
+  !*** ./node_modules/aabb-3d/index.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = AABB\r\n\r\nvar vec3 = __webpack_require__(/*! gl-vec3 */ \"./node_modules/gl-vec3/index.js\")\r\n\r\nfunction AABB(pos, vec) {\r\n\r\n  if(!(this instanceof AABB)) {\r\n    return new AABB(pos, vec)\r\n  }\r\n\r\n  var pos2 = vec3.create()\r\n  vec3.add(pos2, pos, vec)\r\n \r\n  this.base = vec3.min(vec3.create(), pos, pos2)\r\n  this.vec = vec3.clone(vec)\r\n  this.max = vec3.max(vec3.create(), pos, pos2)\r\n\r\n  this.mag = vec3.length(this.vec)\r\n\r\n}\r\n\r\nvar cons = AABB\r\n  , proto = cons.prototype\r\n\r\nproto.width = function() {\r\n  return this.vec[0]\r\n}\r\n\r\nproto.height = function() {\r\n  return this.vec[1]\r\n}\r\n\r\nproto.depth = function() {\r\n  return this.vec[2]\r\n}\r\n\r\nproto.x0 = function() {\r\n  return this.base[0]\r\n}\r\n\r\nproto.y0 = function() {\r\n  return this.base[1]\r\n}\r\n\r\nproto.z0 = function() {\r\n  return this.base[2]\r\n}\r\n\r\nproto.x1 = function() {\r\n  return this.max[0]\r\n}\r\n\r\nproto.y1 = function() {\r\n  return this.max[1]\r\n}\r\n\r\nproto.z1 = function() {\r\n  return this.max[2]\r\n}\r\n\r\nproto.translate = function(by) {\r\n  vec3.add(this.max, this.max, by)\r\n  vec3.add(this.base, this.base, by)\r\n  return this\r\n}\r\n\r\nproto.setPosition = function(pos) {\r\n  vec3.add(this.max, pos, this.vec)\r\n  vec3.copy(this.base, pos)\r\n  return this\r\n}\r\n\r\nproto.expand = function(aabb) {\r\n  var max = vec3.create()\r\n    , min = vec3.create()\r\n\r\n  vec3.max(max, aabb.max, this.max)\r\n  vec3.min(min, aabb.base, this.base)\r\n  vec3.subtract(max, max, min)\r\n\r\n  return new AABB(min, max)\r\n}\r\n\r\nproto.intersects = function(aabb) {\r\n  if(aabb.base[0] > this.max[0]) return false\r\n  if(aabb.base[1] > this.max[1]) return false\r\n  if(aabb.base[2] > this.max[2]) return false\r\n  if(aabb.max[0] < this.base[0]) return false\r\n  if(aabb.max[1] < this.base[1]) return false\r\n  if(aabb.max[2] < this.base[2]) return false\r\n\r\n  return true\r\n}\r\n\r\nproto.touches = function(aabb) {\r\n\r\n  var intersection = this.union(aabb);\r\n\r\n  return (intersection !== null) &&\r\n         ((intersection.width() == 0) ||\r\n         (intersection.height() == 0) || \r\n         (intersection.depth() == 0))\r\n\r\n}\r\n\r\nproto.union = function(aabb) {\r\n  if(!this.intersects(aabb)) return null\r\n\r\n  var base_x = Math.max(aabb.base[0], this.base[0])\r\n    , base_y = Math.max(aabb.base[1], this.base[1])\r\n    , base_z = Math.max(aabb.base[2], this.base[2])\r\n    , max_x = Math.min(aabb.max[0], this.max[0])\r\n    , max_y = Math.min(aabb.max[1], this.max[1])\r\n    , max_z = Math.min(aabb.max[2], this.max[2])\r\n\r\n  return new AABB([base_x, base_y, base_z], [max_x - base_x, max_y - base_y, max_z - base_z])\r\n}\r\n\r\n\r\n\r\n\r\n\n\n//# sourceURL=webpack:///./node_modules/aabb-3d/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/add.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/add.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = add;\n\n/**\n * Adds two vec3's\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {vec3} out\n */\nfunction add(out, a, b) {\n    out[0] = a[0] + b[0]\n    out[1] = a[1] + b[1]\n    out[2] = a[2] + b[2]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/add.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/angle.js":
+/*!***************************************!*\
+  !*** ./node_modules/gl-vec3/angle.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = angle\n\nvar fromValues = __webpack_require__(/*! ./fromValues */ \"./node_modules/gl-vec3/fromValues.js\")\nvar normalize = __webpack_require__(/*! ./normalize */ \"./node_modules/gl-vec3/normalize.js\")\nvar dot = __webpack_require__(/*! ./dot */ \"./node_modules/gl-vec3/dot.js\")\n\n/**\n * Get the angle between two 3D vectors\n * @param {vec3} a The first operand\n * @param {vec3} b The second operand\n * @returns {Number} The angle in radians\n */\nfunction angle(a, b) {\n    var tempA = fromValues(a[0], a[1], a[2])\n    var tempB = fromValues(b[0], b[1], b[2])\n \n    normalize(tempA, tempA)\n    normalize(tempB, tempB)\n \n    var cosine = dot(tempA, tempB)\n\n    if(cosine > 1.0){\n        return 0\n    } else {\n        return Math.acos(cosine)\n    }     \n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/angle.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/ceil.js":
+/*!**************************************!*\
+  !*** ./node_modules/gl-vec3/ceil.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = ceil\n\n/**\n * Math.ceil the components of a vec3\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a vector to ceil\n * @returns {vec3} out\n */\nfunction ceil(out, a) {\n  out[0] = Math.ceil(a[0])\n  out[1] = Math.ceil(a[1])\n  out[2] = Math.ceil(a[2])\n  return out\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/ceil.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/clone.js":
+/*!***************************************!*\
+  !*** ./node_modules/gl-vec3/clone.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = clone;\n\n/**\n * Creates a new vec3 initialized with values from an existing vector\n *\n * @param {vec3} a vector to clone\n * @returns {vec3} a new 3D vector\n */\nfunction clone(a) {\n    var out = new Float32Array(3)\n    out[0] = a[0]\n    out[1] = a[1]\n    out[2] = a[2]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/clone.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/copy.js":
+/*!**************************************!*\
+  !*** ./node_modules/gl-vec3/copy.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = copy;\n\n/**\n * Copy the values from one vec3 to another\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the source vector\n * @returns {vec3} out\n */\nfunction copy(out, a) {\n    out[0] = a[0]\n    out[1] = a[1]\n    out[2] = a[2]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/copy.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/create.js":
+/*!****************************************!*\
+  !*** ./node_modules/gl-vec3/create.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = create;\n\n/**\n * Creates a new, empty vec3\n *\n * @returns {vec3} a new 3D vector\n */\nfunction create() {\n    var out = new Float32Array(3)\n    out[0] = 0\n    out[1] = 0\n    out[2] = 0\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/create.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/cross.js":
+/*!***************************************!*\
+  !*** ./node_modules/gl-vec3/cross.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = cross;\n\n/**\n * Computes the cross product of two vec3's\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {vec3} out\n */\nfunction cross(out, a, b) {\n    var ax = a[0], ay = a[1], az = a[2],\n        bx = b[0], by = b[1], bz = b[2]\n\n    out[0] = ay * bz - az * by\n    out[1] = az * bx - ax * bz\n    out[2] = ax * by - ay * bx\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/cross.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/dist.js":
+/*!**************************************!*\
+  !*** ./node_modules/gl-vec3/dist.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./distance */ \"./node_modules/gl-vec3/distance.js\")\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/dist.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/distance.js":
+/*!******************************************!*\
+  !*** ./node_modules/gl-vec3/distance.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = distance;\n\n/**\n * Calculates the euclidian distance between two vec3's\n *\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {Number} distance between a and b\n */\nfunction distance(a, b) {\n    var x = b[0] - a[0],\n        y = b[1] - a[1],\n        z = b[2] - a[2]\n    return Math.sqrt(x*x + y*y + z*z)\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/distance.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/div.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/div.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./divide */ \"./node_modules/gl-vec3/divide.js\")\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/div.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/divide.js":
+/*!****************************************!*\
+  !*** ./node_modules/gl-vec3/divide.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = divide;\n\n/**\n * Divides two vec3's\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {vec3} out\n */\nfunction divide(out, a, b) {\n    out[0] = a[0] / b[0]\n    out[1] = a[1] / b[1]\n    out[2] = a[2] / b[2]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/divide.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/dot.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/dot.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = dot;\n\n/**\n * Calculates the dot product of two vec3's\n *\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {Number} dot product of a and b\n */\nfunction dot(a, b) {\n    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/dot.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/epsilon.js":
+/*!*****************************************!*\
+  !*** ./node_modules/gl-vec3/epsilon.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = 0.000001\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/epsilon.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/equals.js":
+/*!****************************************!*\
+  !*** ./node_modules/gl-vec3/equals.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = equals\n\nvar EPSILON = __webpack_require__(/*! ./epsilon */ \"./node_modules/gl-vec3/epsilon.js\")\n\n/**\n * Returns whether or not the vectors have approximately the same elements in the same position.\n *\n * @param {vec3} a The first vector.\n * @param {vec3} b The second vector.\n * @returns {Boolean} True if the vectors are equal, false otherwise.\n */\nfunction equals(a, b) {\n  var a0 = a[0]\n  var a1 = a[1]\n  var a2 = a[2]\n  var b0 = b[0]\n  var b1 = b[1]\n  var b2 = b[2]\n  return (Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&\n          Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&\n          Math.abs(a2 - b2) <= EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)))\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/equals.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/exactEquals.js":
+/*!*********************************************!*\
+  !*** ./node_modules/gl-vec3/exactEquals.js ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = exactEquals\n\n/**\n * Returns whether or not the vectors exactly have the same elements in the same position (when compared with ===)\n *\n * @param {vec3} a The first vector.\n * @param {vec3} b The second vector.\n * @returns {Boolean} True if the vectors are equal, false otherwise.\n */\nfunction exactEquals(a, b) {\n  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/exactEquals.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/floor.js":
+/*!***************************************!*\
+  !*** ./node_modules/gl-vec3/floor.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = floor\n\n/**\n * Math.floor the components of a vec3\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a vector to floor\n * @returns {vec3} out\n */\nfunction floor(out, a) {\n  out[0] = Math.floor(a[0])\n  out[1] = Math.floor(a[1])\n  out[2] = Math.floor(a[2])\n  return out\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/floor.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/forEach.js":
+/*!*****************************************!*\
+  !*** ./node_modules/gl-vec3/forEach.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = forEach;\n\nvar vec = __webpack_require__(/*! ./create */ \"./node_modules/gl-vec3/create.js\")()\n\n/**\n * Perform some operation over an array of vec3s.\n *\n * @param {Array} a the array of vectors to iterate over\n * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed\n * @param {Number} offset Number of elements to skip at the beginning of the array\n * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array\n * @param {Function} fn Function to call for each vector in the array\n * @param {Object} [arg] additional argument to pass to fn\n * @returns {Array} a\n * @function\n */\nfunction forEach(a, stride, offset, count, fn, arg) {\n        var i, l\n        if(!stride) {\n            stride = 3\n        }\n\n        if(!offset) {\n            offset = 0\n        }\n        \n        if(count) {\n            l = Math.min((count * stride) + offset, a.length)\n        } else {\n            l = a.length\n        }\n\n        for(i = offset; i < l; i += stride) {\n            vec[0] = a[i] \n            vec[1] = a[i+1] \n            vec[2] = a[i+2]\n            fn(vec, vec, arg)\n            a[i] = vec[0] \n            a[i+1] = vec[1] \n            a[i+2] = vec[2]\n        }\n        \n        return a\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/forEach.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/fromValues.js":
+/*!********************************************!*\
+  !*** ./node_modules/gl-vec3/fromValues.js ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = fromValues;\n\n/**\n * Creates a new vec3 initialized with the given values\n *\n * @param {Number} x X component\n * @param {Number} y Y component\n * @param {Number} z Z component\n * @returns {vec3} a new 3D vector\n */\nfunction fromValues(x, y, z) {\n    var out = new Float32Array(3)\n    out[0] = x\n    out[1] = y\n    out[2] = z\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/fromValues.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/index.js":
+/*!***************************************!*\
+  !*** ./node_modules/gl-vec3/index.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = {\n  EPSILON: __webpack_require__(/*! ./epsilon */ \"./node_modules/gl-vec3/epsilon.js\")\n  , create: __webpack_require__(/*! ./create */ \"./node_modules/gl-vec3/create.js\")\n  , clone: __webpack_require__(/*! ./clone */ \"./node_modules/gl-vec3/clone.js\")\n  , angle: __webpack_require__(/*! ./angle */ \"./node_modules/gl-vec3/angle.js\")\n  , fromValues: __webpack_require__(/*! ./fromValues */ \"./node_modules/gl-vec3/fromValues.js\")\n  , copy: __webpack_require__(/*! ./copy */ \"./node_modules/gl-vec3/copy.js\")\n  , set: __webpack_require__(/*! ./set */ \"./node_modules/gl-vec3/set.js\")\n  , equals: __webpack_require__(/*! ./equals */ \"./node_modules/gl-vec3/equals.js\")\n  , exactEquals: __webpack_require__(/*! ./exactEquals */ \"./node_modules/gl-vec3/exactEquals.js\")\n  , add: __webpack_require__(/*! ./add */ \"./node_modules/gl-vec3/add.js\")\n  , subtract: __webpack_require__(/*! ./subtract */ \"./node_modules/gl-vec3/subtract.js\")\n  , sub: __webpack_require__(/*! ./sub */ \"./node_modules/gl-vec3/sub.js\")\n  , multiply: __webpack_require__(/*! ./multiply */ \"./node_modules/gl-vec3/multiply.js\")\n  , mul: __webpack_require__(/*! ./mul */ \"./node_modules/gl-vec3/mul.js\")\n  , divide: __webpack_require__(/*! ./divide */ \"./node_modules/gl-vec3/divide.js\")\n  , div: __webpack_require__(/*! ./div */ \"./node_modules/gl-vec3/div.js\")\n  , min: __webpack_require__(/*! ./min */ \"./node_modules/gl-vec3/min.js\")\n  , max: __webpack_require__(/*! ./max */ \"./node_modules/gl-vec3/max.js\")\n  , floor: __webpack_require__(/*! ./floor */ \"./node_modules/gl-vec3/floor.js\")\n  , ceil: __webpack_require__(/*! ./ceil */ \"./node_modules/gl-vec3/ceil.js\")\n  , round: __webpack_require__(/*! ./round */ \"./node_modules/gl-vec3/round.js\")\n  , scale: __webpack_require__(/*! ./scale */ \"./node_modules/gl-vec3/scale.js\")\n  , scaleAndAdd: __webpack_require__(/*! ./scaleAndAdd */ \"./node_modules/gl-vec3/scaleAndAdd.js\")\n  , distance: __webpack_require__(/*! ./distance */ \"./node_modules/gl-vec3/distance.js\")\n  , dist: __webpack_require__(/*! ./dist */ \"./node_modules/gl-vec3/dist.js\")\n  , squaredDistance: __webpack_require__(/*! ./squaredDistance */ \"./node_modules/gl-vec3/squaredDistance.js\")\n  , sqrDist: __webpack_require__(/*! ./sqrDist */ \"./node_modules/gl-vec3/sqrDist.js\")\n  , length: __webpack_require__(/*! ./length */ \"./node_modules/gl-vec3/length.js\")\n  , len: __webpack_require__(/*! ./len */ \"./node_modules/gl-vec3/len.js\")\n  , squaredLength: __webpack_require__(/*! ./squaredLength */ \"./node_modules/gl-vec3/squaredLength.js\")\n  , sqrLen: __webpack_require__(/*! ./sqrLen */ \"./node_modules/gl-vec3/sqrLen.js\")\n  , negate: __webpack_require__(/*! ./negate */ \"./node_modules/gl-vec3/negate.js\")\n  , inverse: __webpack_require__(/*! ./inverse */ \"./node_modules/gl-vec3/inverse.js\")\n  , normalize: __webpack_require__(/*! ./normalize */ \"./node_modules/gl-vec3/normalize.js\")\n  , dot: __webpack_require__(/*! ./dot */ \"./node_modules/gl-vec3/dot.js\")\n  , cross: __webpack_require__(/*! ./cross */ \"./node_modules/gl-vec3/cross.js\")\n  , lerp: __webpack_require__(/*! ./lerp */ \"./node_modules/gl-vec3/lerp.js\")\n  , random: __webpack_require__(/*! ./random */ \"./node_modules/gl-vec3/random.js\")\n  , transformMat4: __webpack_require__(/*! ./transformMat4 */ \"./node_modules/gl-vec3/transformMat4.js\")\n  , transformMat3: __webpack_require__(/*! ./transformMat3 */ \"./node_modules/gl-vec3/transformMat3.js\")\n  , transformQuat: __webpack_require__(/*! ./transformQuat */ \"./node_modules/gl-vec3/transformQuat.js\")\n  , rotateX: __webpack_require__(/*! ./rotateX */ \"./node_modules/gl-vec3/rotateX.js\")\n  , rotateY: __webpack_require__(/*! ./rotateY */ \"./node_modules/gl-vec3/rotateY.js\")\n  , rotateZ: __webpack_require__(/*! ./rotateZ */ \"./node_modules/gl-vec3/rotateZ.js\")\n  , forEach: __webpack_require__(/*! ./forEach */ \"./node_modules/gl-vec3/forEach.js\")\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/inverse.js":
+/*!*****************************************!*\
+  !*** ./node_modules/gl-vec3/inverse.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = inverse;\n\n/**\n * Returns the inverse of the components of a vec3\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a vector to invert\n * @returns {vec3} out\n */\nfunction inverse(out, a) {\n  out[0] = 1.0 / a[0]\n  out[1] = 1.0 / a[1]\n  out[2] = 1.0 / a[2]\n  return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/inverse.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/len.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/len.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./length */ \"./node_modules/gl-vec3/length.js\")\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/len.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/length.js":
+/*!****************************************!*\
+  !*** ./node_modules/gl-vec3/length.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = length;\n\n/**\n * Calculates the length of a vec3\n *\n * @param {vec3} a vector to calculate length of\n * @returns {Number} length of a\n */\nfunction length(a) {\n    var x = a[0],\n        y = a[1],\n        z = a[2]\n    return Math.sqrt(x*x + y*y + z*z)\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/length.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/lerp.js":
+/*!**************************************!*\
+  !*** ./node_modules/gl-vec3/lerp.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = lerp;\n\n/**\n * Performs a linear interpolation between two vec3's\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @param {Number} t interpolation amount between the two inputs\n * @returns {vec3} out\n */\nfunction lerp(out, a, b, t) {\n    var ax = a[0],\n        ay = a[1],\n        az = a[2]\n    out[0] = ax + t * (b[0] - ax)\n    out[1] = ay + t * (b[1] - ay)\n    out[2] = az + t * (b[2] - az)\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/lerp.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/max.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/max.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = max;\n\n/**\n * Returns the maximum of two vec3's\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {vec3} out\n */\nfunction max(out, a, b) {\n    out[0] = Math.max(a[0], b[0])\n    out[1] = Math.max(a[1], b[1])\n    out[2] = Math.max(a[2], b[2])\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/max.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/min.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/min.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = min;\n\n/**\n * Returns the minimum of two vec3's\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {vec3} out\n */\nfunction min(out, a, b) {\n    out[0] = Math.min(a[0], b[0])\n    out[1] = Math.min(a[1], b[1])\n    out[2] = Math.min(a[2], b[2])\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/min.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/mul.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/mul.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./multiply */ \"./node_modules/gl-vec3/multiply.js\")\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/mul.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/multiply.js":
+/*!******************************************!*\
+  !*** ./node_modules/gl-vec3/multiply.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = multiply;\n\n/**\n * Multiplies two vec3's\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {vec3} out\n */\nfunction multiply(out, a, b) {\n    out[0] = a[0] * b[0]\n    out[1] = a[1] * b[1]\n    out[2] = a[2] * b[2]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/multiply.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/negate.js":
+/*!****************************************!*\
+  !*** ./node_modules/gl-vec3/negate.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = negate;\n\n/**\n * Negates the components of a vec3\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a vector to negate\n * @returns {vec3} out\n */\nfunction negate(out, a) {\n    out[0] = -a[0]\n    out[1] = -a[1]\n    out[2] = -a[2]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/negate.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/normalize.js":
+/*!*******************************************!*\
+  !*** ./node_modules/gl-vec3/normalize.js ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = normalize;\n\n/**\n * Normalize a vec3\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a vector to normalize\n * @returns {vec3} out\n */\nfunction normalize(out, a) {\n    var x = a[0],\n        y = a[1],\n        z = a[2]\n    var len = x*x + y*y + z*z\n    if (len > 0) {\n        //TODO: evaluate use of glm_invsqrt here?\n        len = 1 / Math.sqrt(len)\n        out[0] = a[0] * len\n        out[1] = a[1] * len\n        out[2] = a[2] * len\n    }\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/normalize.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/random.js":
+/*!****************************************!*\
+  !*** ./node_modules/gl-vec3/random.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = random;\n\n/**\n * Generates a random vector with the given scale\n *\n * @param {vec3} out the receiving vector\n * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned\n * @returns {vec3} out\n */\nfunction random(out, scale) {\n    scale = scale || 1.0\n\n    var r = Math.random() * 2.0 * Math.PI\n    var z = (Math.random() * 2.0) - 1.0\n    var zScale = Math.sqrt(1.0-z*z) * scale\n\n    out[0] = Math.cos(r) * zScale\n    out[1] = Math.sin(r) * zScale\n    out[2] = z * scale\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/random.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/rotateX.js":
+/*!*****************************************!*\
+  !*** ./node_modules/gl-vec3/rotateX.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = rotateX;\n\n/**\n * Rotate a 3D vector around the x-axis\n * @param {vec3} out The receiving vec3\n * @param {vec3} a The vec3 point to rotate\n * @param {vec3} b The origin of the rotation\n * @param {Number} c The angle of rotation\n * @returns {vec3} out\n */\nfunction rotateX(out, a, b, c){\n    var by = b[1]\n    var bz = b[2]\n\n    // Translate point to the origin\n    var py = a[1] - by\n    var pz = a[2] - bz\n\n    var sc = Math.sin(c)\n    var cc = Math.cos(c)\n\n    // perform rotation and translate to correct position\n    out[0] = a[0]\n    out[1] = by + py * cc - pz * sc\n    out[2] = bz + py * sc + pz * cc\n\n    return out\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/rotateX.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/rotateY.js":
+/*!*****************************************!*\
+  !*** ./node_modules/gl-vec3/rotateY.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = rotateY;\n\n/**\n * Rotate a 3D vector around the y-axis\n * @param {vec3} out The receiving vec3\n * @param {vec3} a The vec3 point to rotate\n * @param {vec3} b The origin of the rotation\n * @param {Number} c The angle of rotation\n * @returns {vec3} out\n */\nfunction rotateY(out, a, b, c){\n    var bx = b[0]\n    var bz = b[2]\n\n    // translate point to the origin\n    var px = a[0] - bx\n    var pz = a[2] - bz\n    \n    var sc = Math.sin(c)\n    var cc = Math.cos(c)\n  \n    // perform rotation and translate to correct position\n    out[0] = bx + pz * sc + px * cc\n    out[1] = a[1]\n    out[2] = bz + pz * cc - px * sc\n  \n    return out\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/rotateY.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/rotateZ.js":
+/*!*****************************************!*\
+  !*** ./node_modules/gl-vec3/rotateZ.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = rotateZ;\n\n/**\n * Rotate a 3D vector around the z-axis\n * @param {vec3} out The receiving vec3\n * @param {vec3} a The vec3 point to rotate\n * @param {vec3} b The origin of the rotation\n * @param {Number} c The angle of rotation\n * @returns {vec3} out\n */\nfunction rotateZ(out, a, b, c){\n    var bx = b[0]\n    var by = b[1]\n\n    //Translate point to the origin\n    var px = a[0] - bx\n    var py = a[1] - by\n  \n    var sc = Math.sin(c)\n    var cc = Math.cos(c)\n\n    // perform rotation and translate to correct position\n    out[0] = bx + px * cc - py * sc\n    out[1] = by + px * sc + py * cc\n    out[2] = a[2]\n  \n    return out\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/rotateZ.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/round.js":
+/*!***************************************!*\
+  !*** ./node_modules/gl-vec3/round.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = round\n\n/**\n * Math.round the components of a vec3\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a vector to round\n * @returns {vec3} out\n */\nfunction round(out, a) {\n  out[0] = Math.round(a[0])\n  out[1] = Math.round(a[1])\n  out[2] = Math.round(a[2])\n  return out\n}\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/round.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/scale.js":
+/*!***************************************!*\
+  !*** ./node_modules/gl-vec3/scale.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = scale;\n\n/**\n * Scales a vec3 by a scalar number\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the vector to scale\n * @param {Number} b amount to scale the vector by\n * @returns {vec3} out\n */\nfunction scale(out, a, b) {\n    out[0] = a[0] * b\n    out[1] = a[1] * b\n    out[2] = a[2] * b\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/scale.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/scaleAndAdd.js":
+/*!*********************************************!*\
+  !*** ./node_modules/gl-vec3/scaleAndAdd.js ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = scaleAndAdd;\n\n/**\n * Adds two vec3's after scaling the second operand by a scalar value\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @param {Number} scale the amount to scale b by before adding\n * @returns {vec3} out\n */\nfunction scaleAndAdd(out, a, b, scale) {\n    out[0] = a[0] + (b[0] * scale)\n    out[1] = a[1] + (b[1] * scale)\n    out[2] = a[2] + (b[2] * scale)\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/scaleAndAdd.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/set.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/set.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = set;\n\n/**\n * Set the components of a vec3 to the given values\n *\n * @param {vec3} out the receiving vector\n * @param {Number} x X component\n * @param {Number} y Y component\n * @param {Number} z Z component\n * @returns {vec3} out\n */\nfunction set(out, x, y, z) {\n    out[0] = x\n    out[1] = y\n    out[2] = z\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/set.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/sqrDist.js":
+/*!*****************************************!*\
+  !*** ./node_modules/gl-vec3/sqrDist.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./squaredDistance */ \"./node_modules/gl-vec3/squaredDistance.js\")\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/sqrDist.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/sqrLen.js":
+/*!****************************************!*\
+  !*** ./node_modules/gl-vec3/sqrLen.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./squaredLength */ \"./node_modules/gl-vec3/squaredLength.js\")\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/sqrLen.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/squaredDistance.js":
+/*!*************************************************!*\
+  !*** ./node_modules/gl-vec3/squaredDistance.js ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = squaredDistance;\n\n/**\n * Calculates the squared euclidian distance between two vec3's\n *\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {Number} squared distance between a and b\n */\nfunction squaredDistance(a, b) {\n    var x = b[0] - a[0],\n        y = b[1] - a[1],\n        z = b[2] - a[2]\n    return x*x + y*y + z*z\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/squaredDistance.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/squaredLength.js":
+/*!***********************************************!*\
+  !*** ./node_modules/gl-vec3/squaredLength.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = squaredLength;\n\n/**\n * Calculates the squared length of a vec3\n *\n * @param {vec3} a vector to calculate squared length of\n * @returns {Number} squared length of a\n */\nfunction squaredLength(a) {\n    var x = a[0],\n        y = a[1],\n        z = a[2]\n    return x*x + y*y + z*z\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/squaredLength.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/sub.js":
+/*!*************************************!*\
+  !*** ./node_modules/gl-vec3/sub.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("module.exports = __webpack_require__(/*! ./subtract */ \"./node_modules/gl-vec3/subtract.js\")\n\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/sub.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/subtract.js":
+/*!******************************************!*\
+  !*** ./node_modules/gl-vec3/subtract.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = subtract;\n\n/**\n * Subtracts vector b from vector a\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the first operand\n * @param {vec3} b the second operand\n * @returns {vec3} out\n */\nfunction subtract(out, a, b) {\n    out[0] = a[0] - b[0]\n    out[1] = a[1] - b[1]\n    out[2] = a[2] - b[2]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/subtract.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/transformMat3.js":
+/*!***********************************************!*\
+  !*** ./node_modules/gl-vec3/transformMat3.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = transformMat3;\n\n/**\n * Transforms the vec3 with a mat3.\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the vector to transform\n * @param {mat4} m the 3x3 matrix to transform with\n * @returns {vec3} out\n */\nfunction transformMat3(out, a, m) {\n    var x = a[0], y = a[1], z = a[2]\n    out[0] = x * m[0] + y * m[3] + z * m[6]\n    out[1] = x * m[1] + y * m[4] + z * m[7]\n    out[2] = x * m[2] + y * m[5] + z * m[8]\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/transformMat3.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/transformMat4.js":
+/*!***********************************************!*\
+  !*** ./node_modules/gl-vec3/transformMat4.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = transformMat4;\n\n/**\n * Transforms the vec3 with a mat4.\n * 4th vector component is implicitly '1'\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the vector to transform\n * @param {mat4} m matrix to transform with\n * @returns {vec3} out\n */\nfunction transformMat4(out, a, m) {\n    var x = a[0], y = a[1], z = a[2],\n        w = m[3] * x + m[7] * y + m[11] * z + m[15]\n    w = w || 1.0\n    out[0] = (m[0] * x + m[4] * y + m[8] * z + m[12]) / w\n    out[1] = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w\n    out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/transformMat4.js?");
+
+/***/ }),
+
+/***/ "./node_modules/gl-vec3/transformQuat.js":
+/*!***********************************************!*\
+  !*** ./node_modules/gl-vec3/transformQuat.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = transformQuat;\n\n/**\n * Transforms the vec3 with a quat\n *\n * @param {vec3} out the receiving vector\n * @param {vec3} a the vector to transform\n * @param {quat} q quaternion to transform with\n * @returns {vec3} out\n */\nfunction transformQuat(out, a, q) {\n    // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations\n\n    var x = a[0], y = a[1], z = a[2],\n        qx = q[0], qy = q[1], qz = q[2], qw = q[3],\n\n        // calculate quat * vec\n        ix = qw * x + qy * z - qz * y,\n        iy = qw * y + qz * x - qx * z,\n        iz = qw * z + qx * y - qy * x,\n        iw = -qx * x - qy * y - qz * z\n\n    // calculate result * inverse quat\n    out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy\n    out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz\n    out[2] = iz * qw + iw * -qz + ix * -qy - iy * -qx\n    return out\n}\n\n//# sourceURL=webpack:///./node_modules/gl-vec3/transformQuat.js?");
+
+/***/ }),
+
+/***/ "./node_modules/voxel-aabb-sweep/index.js":
+/*!************************************************!*\
+  !*** ./node_modules/voxel-aabb-sweep/index.js ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\n\n// reused array instances\n\nvar tr_arr = []\nvar ldi_arr = []\nvar tri_arr = []\nvar step_arr = []\nvar tDelta_arr = []\nvar tNext_arr = []\nvar vec_arr = []\nvar normed_arr = []\nvar base_arr = []\nvar max_arr = []\nvar left_arr = []\nvar result_arr = []\n\n\n\n// core implementation:\n\nfunction sweep_impl(getVoxel, callback, vec, base, max, epsilon) {\n\n    // consider algo as a raycast along the AABB's leading corner\n    // as raycast enters each new voxel, iterate in 2D over the AABB's \n    // leading face in that axis looking for collisions\n    // \n    // original raycast implementation: https://github.com/andyhall/fast-voxel-raycast\n    // original raycast paper: http://www.cse.chalmers.se/edu/year/2010/course/TDA361/grid.pdf\n\n    var tr = tr_arr\n    var ldi = ldi_arr\n    var tri = tri_arr\n    var step = step_arr\n    var tDelta = tDelta_arr\n    var tNext = tNext_arr\n    var normed = normed_arr\n\n    var floor = Math.floor\n    var cumulative_t = 0.0\n    var t = 0.0\n    var max_t = 0.0\n    var axis = 0\n    var i = 0\n\n\n    // init for the current sweep vector and take first step\n    initSweep()\n    if (max_t === 0) return 0\n\n    axis = stepForward()\n\n    // loop along raycast vector\n    while (t <= max_t) {\n\n        // sweeps over leading face of AABB\n        if (checkCollision(axis)) {\n            // calls the callback and decides whether to continue\n            var done = handleCollision()\n            if (done) return cumulative_t\n        }\n\n        axis = stepForward()\n    }\n\n    // reached the end of the vector unobstructed, finish and exit\n    cumulative_t += max_t\n    for (i = 0; i < 3; i++) {\n        base[i] += vec[i]\n        max[i] += vec[i]\n    }\n    return cumulative_t\n\n\n\n\n\n    // low-level implementations of each step:\n    function initSweep() {\n\n        // parametrization t along raycast\n        t = 0.0\n        max_t = Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2])\n        if (max_t === 0) return\n        for (var i = 0; i < 3; i++) {\n            var dir = (vec[i] >= 0)\n            step[i] = dir ? 1 : -1\n            // trailing / trailing edge coords\n            var lead = dir ? max[i] : base[i]\n            tr[i] = dir ? base[i] : max[i]\n            // int values of lead/trail edges\n            ldi[i] = leadEdgeToInt(lead, step[i])\n            tri[i] = trailEdgeToInt(tr[i], step[i])\n            // normed vector\n            normed[i] = vec[i] / max_t\n            // distance along t required to move one voxel in each axis\n            tDelta[i] = Math.abs(1 / normed[i])\n            // location of nearest voxel boundary, in units of t \n            var dist = dir ? (ldi[i] + 1 - lead) : (lead - ldi[i])\n            tNext[i] = (tDelta[i] < Infinity) ? tDelta[i] * dist : Infinity\n        }\n\n    }\n\n\n    // check for collisions - iterate over the leading face on the advancing axis\n\n    function checkCollision(i_axis) {\n        var stepx = step[0]\n        var x0 = (i_axis === 0) ? ldi[0] : tri[0]\n        var x1 = ldi[0] + stepx\n\n        var stepy = step[1]\n        var y0 = (i_axis === 1) ? ldi[1] : tri[1]\n        var y1 = ldi[1] + stepy\n\n        var stepz = step[2]\n        var z0 = (i_axis === 2) ? ldi[2] : tri[2]\n        var z1 = ldi[2] + stepz\n\n        // var j_axis = (i_axis + 1) % 3\n        // var k_axis = (i_axis + 2) % 3\n        // var s = ['x', 'y', 'z'][i_axis]\n        // var js = ['x', 'y', 'z'][j_axis]\n        // var ks = ['x', 'y', 'z'][k_axis]\n        // var i0 = [x0, y0, z0][i_axis]\n        // var j0 = [x0, y0, z0][j_axis]\n        // var k0 = [x0, y0, z0][k_axis]\n        // var i1 = [x1 - stepx, y1 - stepy, z1 - stepz][i_axis]\n        // var j1 = [x1 - stepx, y1 - stepy, z1 - stepz][j_axis]\n        // var k1 = [x1 - stepx, y1 - stepy, z1 - stepz][k_axis]\n        // console.log('=== step', s, 'to', i0, '   sweep', js, j0 + ',' + j1, '   ', ks, k0 + ',' + k1)\n\n        for (var x = x0; x != x1; x += stepx) {\n            for (var y = y0; y != y1; y += stepy) {\n                for (var z = z0; z != z1; z += stepz) {\n                    if (getVoxel(x, y, z)) return true\n                }\n            }\n        }\n        return false\n    }\n\n\n    // on collision - call the callback and return or set up for the next sweep\n\n    function handleCollision() {\n\n        // set up for callback\n        cumulative_t += t\n        var dir = step[axis]\n\n        // vector moved so far, and left to move\n        var done = t / max_t\n        var left = left_arr\n        for (i = 0; i < 3; i++) {\n            var dv = vec[i] * done\n            base[i] += dv\n            max[i] += dv\n            left[i] = vec[i] - dv\n        }\n\n        // set leading edge of stepped axis exactly to voxel boundary\n        // else we'll sometimes rounding error beyond it\n        if (dir > 0) {\n            max[axis] = Math.round(max[axis])\n        } else {\n            base[axis] = Math.round(base[axis])\n        }\n        \n        // call back to let client update the \"left to go\" vector\n        var res = callback(cumulative_t, axis, dir, left)\n\n        // bail out out on truthy response\n        if (res) return true\n\n        // init for new sweep along vec\n        for (i = 0; i < 3; i++) vec[i] = left[i]\n        initSweep()\n        if (max_t === 0) return true // no vector left\n\n        return false\n    }\n\n\n    // advance to next voxel boundary, and return which axis was stepped\n\n    function stepForward() {\n        var axis = (tNext[0] < tNext[1]) ?\n            ((tNext[0] < tNext[2]) ? 0 : 2) :\n            ((tNext[1] < tNext[2]) ? 1 : 2)\n        var dt = tNext[axis] - t\n        t = tNext[axis]\n        ldi[axis] += step[axis]\n        tNext[axis] += tDelta[axis]\n        for (i = 0; i < 3; i++) {\n            tr[i] += dt * normed[i]\n            tri[i] = trailEdgeToInt(tr[i], step[i])\n        }\n\n        return axis\n    }\n\n\n\n    function leadEdgeToInt(coord, step) {\n        return floor(coord - step * epsilon)\n    }\n    function trailEdgeToInt(coord, step) {\n        return floor(coord + step * epsilon)\n    }\n\n}\n\n\n\n\n\n// conform inputs\n\nfunction sweep(getVoxel, box, dir, callback, noTranslate, epsilon) {\n\n    var vec = vec_arr\n    var base = base_arr\n    var max = max_arr\n    var result = result_arr\n\n    // init parameter float arrays\n    for (var i = 0; i < 3; i++) {\n        vec[i] = +dir[i]\n        max[i] = +box.max[i]\n        base[i] = +box.base[i]\n    }\n\n    if (!epsilon) epsilon = 1e-10\n\n    // run sweep implementation\n    var dist = sweep_impl(getVoxel, callback, vec, base, max, epsilon)\n\n    // translate box by distance needed to updated base value\n    if (!noTranslate) {\n        for (i = 0; i < 3; i++) {\n            result[i] = (dir[i] > 0) ? max[i] - box.max[i] : base[i] - box.base[i]\n        }\n        box.translate(result)\n    }\n\n    // return value is total distance moved (not necessarily magnitude of [end]-[start])\n    return dist\n}\n\nmodule.exports = sweep\n\n\n\n//# sourceURL=webpack:///./node_modules/voxel-aabb-sweep/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/voxel-physics-engine/src/index.js":
+/*!********************************************************!*\
+  !*** ./node_modules/voxel-physics-engine/src/index.js ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar aabb = __webpack_require__(/*! aabb-3d */ \"./node_modules/aabb-3d/index.js\")\nvar vec3 = __webpack_require__(/*! gl-vec3 */ \"./node_modules/gl-vec3/index.js\")\nvar sweep = __webpack_require__(/*! voxel-aabb-sweep */ \"./node_modules/voxel-aabb-sweep/index.js\")\nvar RigidBody = __webpack_require__(/*! ./rigidBody */ \"./node_modules/voxel-physics-engine/src/rigidBody.js\")\n\n\nvar DEBUG = 0\n\n\nmodule.exports = function (opts, testSolid, testFluid) {\n    return new Physics(opts, testSolid, testFluid)\n}\n\nvar defaults = {\n    gravity: [0, -10, 0],\n    minBounceImpulse: .5, // lowest collision impulse that bounces\n    airDrag: 0.1,\n    fluidDrag: 0.4,\n    fluidDensity: 2.0,\n}\n\n\n/* \n *    CONSTRUCTOR - represents a world of rigid bodies.\n * \n *  Takes testSolid(x,y,z) function to query block solidity\n *  Takes testFluid(x,y,z) function to query if a block is a fluid\n*/\nfunction Physics(opts, testSolid, testFluid) {\n    opts = Object.assign({}, defaults, opts)\n\n    this.gravity = opts.gravity\n    this.airDrag = opts.airDrag\n    this.fluidDensity = opts.fluidDensity\n    this.fluidDrag = opts.fluidDrag\n    this.minBounceImpulse = opts.minBounceImpulse\n    this.bodies = []\n\n    // collision function - TODO: abstract this into a setter?\n    this.testSolid = testSolid\n    this.testFluid = testFluid\n}\n\n\n/*\n *    ADDING AND REMOVING RIGID BODIES\n*/\n\nPhysics.prototype.addBody = function (_aabb, mass, friction,\n    restitution, gravMult, onCollide) {\n    _aabb = _aabb || new aabb([0, 0, 0], [1, 1, 1])\n    if (typeof mass == 'undefined') mass = 1\n    if (typeof friction == 'undefined') friction = 1\n    if (typeof restitution == 'undefined') restitution = 0\n    if (typeof gravMult == 'undefined') gravMult = 1\n    var b = new RigidBody(_aabb, mass, friction, restitution, gravMult, onCollide)\n    this.bodies.push(b)\n    return b\n}\n\nPhysics.prototype.removeBody = function (b) {\n    var i = this.bodies.indexOf(b)\n    if (i < 0) return undefined\n    this.bodies.splice(i, 1)\n    b.aabb = b.onCollide = null\n}\n\n\n\n\n/*\n *    PHYSICS AND COLLISIONS\n*/\n\nvar a = vec3.create()\nvar dv = vec3.create()\nvar dx = vec3.create()\nvar impacts = vec3.create()\nvar oldResting = vec3.create()\n\n\n/*\n *    TICK HANDLER\n*/\nPhysics.prototype.tick = function (dt) {\n    // convert dt to seconds\n    dt = dt / 1000\n    var noGravity = equals(0, vec3.squaredLength(this.gravity))\n\n    this.bodies.forEach(b => iterateBody(this, b, dt, noGravity))\n}\n\n\n\n/*\n *    PER-BODY MAIN PHYSICS ROUTINE\n*/\n\nfunction iterateBody(self, b, dt, noGravity) {\n    vec3.copy(oldResting, b.resting)\n\n    // treat bodies with <= mass as static\n    if (b.mass <= 0) {\n        vec3.set(b.velocity, 0, 0, 0)\n        vec3.set(b._forces, 0, 0, 0)\n        vec3.set(b._impulses, 0, 0, 0)\n        return\n    }\n\n    // skip bodies if static or no velocity/forces/impulses\n    var localNoGrav = noGravity || (b.gravityMultiplier === 0)\n    if (bodyAsleep(self, b, dt, localNoGrav)) return\n    b._sleepFrameCount--\n\n    // check if under water, if so apply buoyancy and drag forces\n    applyFluidForces(self, b)\n\n    // debug hooks\n    sanityCheck(b._forces)\n    sanityCheck(b._impulses)\n    sanityCheck(b.velocity)\n    sanityCheck(b.resting)\n\n    // semi-implicit Euler integration\n\n    // a = f/m + gravity*gravityMultiplier\n    vec3.scale(a, b._forces, 1 / b.mass)\n    vec3.scaleAndAdd(a, a, self.gravity, b.gravityMultiplier)\n\n    // dv = i/m + a*dt\n    // v1 = v0 + dv\n    vec3.scale(dv, b._impulses, 1 / b.mass)\n    vec3.scaleAndAdd(dv, dv, a, dt)\n    vec3.add(b.velocity, b.velocity, dv)\n\n    // apply friction based on change in velocity this frame\n    if (b.friction) {\n        applyFrictionByAxis(0, b, dv)\n        applyFrictionByAxis(1, b, dv)\n        applyFrictionByAxis(2, b, dv)\n    }\n\n    // linear air or fluid friction - effectively v *= drag\n    // body settings override global settings\n    var drag = (b.airDrag >= 0) ? b.airDrag : self.airDrag\n    if (b.inFluid) {\n        drag = (b.fluidDrag >= 0) ? b.fluidDrag : self.fluidDrag\n        drag *= 1 - (1 - b.ratioInFluid) ** 2\n    }\n    var mult = Math.max(1 - drag * dt / b.mass, 0)\n    vec3.scale(b.velocity, b.velocity, mult)\n\n    // x1-x0 = v1*dt\n    vec3.scale(dx, b.velocity, dt)\n\n    // clear forces and impulses for next timestep\n    vec3.set(b._forces, 0, 0, 0)\n    vec3.set(b._impulses, 0, 0, 0)\n\n    // cache old position for use in autostepping\n    if (b.autoStep) {\n        cloneAABB(tmpBox, b.aabb)\n    }\n\n    // sweeps aabb along dx and accounts for collisions\n    processCollisions(self, b.aabb, dx, b.resting)\n\n    // if autostep, and on ground, run collisions again with stepped up aabb\n    if (b.autoStep) {\n        tryAutoStepping(self, b, tmpBox, dx)\n    }\n\n    // Collision impacts. b.resting shows which axes had collisions:\n    for (var i = 0; i < 3; ++i) {\n        impacts[i] = 0\n        if (b.resting[i]) {\n            // count impact only if wasn't collided last frame\n            if (!oldResting[i]) impacts[i] = -b.velocity[i]\n            b.velocity[i] = 0\n        }\n    }\n    var mag = vec3.length(impacts)\n    if (mag > .001) { // epsilon\n        // bounce if over minBounceImpulse\n        if (mag > self.minBounceImpulse && b.restitution) {\n            vec3.scale(impacts, impacts, b.restitution * b.mass)\n            b.applyImpulse(impacts)\n        }\n        // send collision event regardless\n        if (b.onCollide) b.onCollide(impacts)\n    }\n\n\n    // sleep check\n    var vsq = vec3.squaredLength(b.velocity)\n    if (vsq > 1e-5) b._markActive()\n}\n\n\n\n\n\n\n\n\n/*\n *    FLUIDS\n*/\n\nfunction applyFluidForces(self, body) {\n    // First pass at handling fluids. Assumes fluids are settled\n    //   thus, only check at corner of body, and only from bottom up\n    var box = body.aabb\n    var cx = Math.floor(box.base[0])\n    var cz = Math.floor(box.base[2])\n    var y0 = Math.floor(box.base[1])\n    var y1 = Math.floor(box.max[1])\n\n    if (!self.testFluid(cx, y0, cz)) {\n        body.inFluid = false\n        body.ratioInFluid = 0\n        return\n    }\n\n    // body is in a fluid - find out how much of body is submerged\n    var submerged = 1\n    var cy = y0 + 1\n    while (cy <= y1 && self.testFluid(cx, cy, cz)) {\n        submerged++\n        cy++\n    }\n    var fluidLevel = y0 + submerged\n    var heightInFluid = fluidLevel - box.base[1]\n    var ratioInFluid = heightInFluid / box.vec[1]\n    if (ratioInFluid > 1) ratioInFluid = 1\n    var vol = box.vec[0] * box.vec[1] * box.vec[2]\n    var displaced = vol * ratioInFluid\n    // bouyant force = -gravity * fluidDensity * volumeDisplaced\n    var f = _fluidVec\n    vec3.scale(f, self.gravity, -self.fluidDensity * displaced)\n    body.applyForce(f)\n\n    body.inFluid = true\n    body.ratioInFluid = ratioInFluid\n}\n\nvar _fluidVec = vec3.create()\n\n\n\n\n\n/*\n *    FRICTION\n*/\n\n\nfunction applyFrictionByAxis(axis, body, dvel) {\n    // friction applies only if moving into a touched surface\n    var restDir = body.resting[axis]\n    var vNormal = dvel[axis]\n    if (restDir === 0) return\n    if (restDir * vNormal <= 0) return\n\n    // current vel lateral to friction axis\n    vec3.copy(lateralVel, body.velocity)\n    lateralVel[axis] = 0\n    var vCurr = vec3.length(lateralVel)\n    if (equals(vCurr, 0)) return\n\n    // treat current change in velocity as the result of a pseudoforce\n    //        Fpseudo = m*dv/dt\n    // Base friction force on normal component of the pseudoforce\n    //        Ff = u * Fnormal\n    //        Ff = u * m * dvnormal / dt\n    // change in velocity due to friction force\n    //        dvF = dt * Ff / m\n    //            = dt * (u * m * dvnormal / dt) / m\n    //            = u * dvnormal\n    var dvMax = Math.abs(body.friction * vNormal)\n\n    // decrease lateral vel by dvMax (or clamp to zero)\n    var scaler = (vCurr > dvMax) ? (vCurr - dvMax) / vCurr : 0\n    body.velocity[(axis + 1) % 3] *= scaler\n    body.velocity[(axis + 2) % 3] *= scaler\n}\nvar lateralVel = vec3.create()\n\n\n\n\n\n\n/*\n *    COLLISION HANDLER\n*/\n\n// sweep aabb along velocity vector and set resting vector\nfunction processCollisions(self, box, velocity, resting) {\n    vec3.set(resting, 0, 0, 0)\n    return sweep(self.testSolid, box, velocity, function (dist, axis, dir, vec) {\n        resting[axis] = dir\n        vec[axis] = 0\n    })\n}\n\n\n\n\n\n/*\n *    AUTO-STEPPING\n*/\n\nvar tmpBox = new aabb([], [])\nvar tmpResting = vec3.create()\nvar targetPos = vec3.create()\nvar upvec = vec3.create()\nvar leftover = vec3.create()\n\nfunction tryAutoStepping(self, b, oldBox, dx) {\n    if (b.resting[1] >= 0 && !b.inFluid) return\n\n    // // direction movement was blocked before trying a step\n    var xBlocked = (b.resting[0] !== 0)\n    var zBlocked = (b.resting[2] !== 0)\n    if (!(xBlocked || zBlocked)) return\n\n    // continue autostepping only if headed sufficiently into obstruction\n    var ratio = Math.abs(dx[0] / dx[2])\n    var cutoff = 4\n    if (!xBlocked && ratio > cutoff) return\n    if (!zBlocked && ratio < 1 / cutoff) return\n\n    // original target position before being obstructed\n    vec3.add(targetPos, oldBox.base, dx)\n\n    // move towards the target until the first X/Z collision\n    var getVoxels = self.testSolid\n    sweep(getVoxels, oldBox, dx, function (dist, axis, dir, vec) {\n        if (axis === 1) vec[axis] = 0\n        else return true\n    })\n\n    var y = b.aabb.base[1]\n    var ydist = Math.floor(y + 1.001) - y\n    vec3.set(upvec, 0, ydist, 0)\n    var collided = false\n    // sweep up, bailing on any obstruction\n    sweep(getVoxels, oldBox, upvec, function (dist, axis, dir, vec) {\n        collided = true\n        return true\n    })\n    if (collided) return // could't move upwards\n\n    // now move in X/Z however far was left over before hitting the obstruction\n    vec3.subtract(leftover, targetPos, oldBox.base)\n    leftover[1] = 0\n    processCollisions(self, oldBox, leftover, tmpResting)\n\n    // bail if no movement happened in the originally blocked direction\n    if (xBlocked && !equals(oldBox.base[0], targetPos[0])) return\n    if (zBlocked && !equals(oldBox.base[2], targetPos[2])) return\n\n    // done - oldBox is now at the target autostepped position\n    cloneAABB(b.aabb, oldBox)\n    b.resting[0] = tmpResting[0]\n    b.resting[2] = tmpResting[2]\n    if (b.onStep) b.onStep()\n}\n\n\n\n\n\n/*\n *    SLEEP CHECK\n*/\n\nfunction bodyAsleep(self, body, dt, noGravity) {\n    if (body._sleepFrameCount > 0) return false\n    // without gravity bodies stay asleep until a force/impulse wakes them up\n    if (noGravity) return true\n    // otherwise check body is resting against something\n    // i.e. sweep along by distance d = 1/2 g*t^2\n    // and check there's still a collision\n    var isResting = false\n    var gmult = 0.5 * dt * dt * body.gravityMultiplier\n    vec3.scale(sleepVec, self.gravity, gmult)\n    sweep(self.testSolid, body.aabb, sleepVec, function () {\n        isResting = true\n        return true\n    }, true)\n    return isResting\n}\nvar sleepVec = vec3.create()\n\n\n\n\n\nfunction equals(a, b) { return Math.abs(a - b) < 1e-5 }\n\nfunction cloneAABB(tgt, src) {\n    for (var i = 0; i < 3; i++) {\n        tgt.base[i] = src.base[i]\n        tgt.max[i] = src.max[i]\n        tgt.vec[i] = src.vec[i]\n    }\n}\n\n\n\nvar sanityCheck = function () { }\nif (DEBUG) sanityCheck = function (v) {\n    if (isNaN(vec3.length(v))) throw 'Vector with NAN: ', v\n}\n\n\n//# sourceURL=webpack:///./node_modules/voxel-physics-engine/src/index.js?");
+
+/***/ }),
+
+/***/ "./node_modules/voxel-physics-engine/src/rigidBody.js":
+/*!************************************************************!*\
+  !*** ./node_modules/voxel-physics-engine/src/rigidBody.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar aabb = __webpack_require__(/*! aabb-3d */ \"./node_modules/aabb-3d/index.js\")\nvar vec3 = __webpack_require__(/*! gl-vec3 */ \"./node_modules/gl-vec3/index.js\")\n\n\nvar DEBUG = 0\n\n\nmodule.exports = RigidBody\n\n\n\n/*\n *    RIGID BODY - internal data structure\n *  Only AABB bodies right now. Someday will likely need spheres?\n*/\n\nfunction RigidBody(_aabb, mass, friction, restitution, gravMult, onCollide, autoStep) {\n    this.aabb = new aabb(_aabb.base, _aabb.vec) // clone\n    this.mass = mass\n    this.friction = friction\n    this.restitution = restitution\n    this.gravityMultiplier = gravMult\n    this.onCollide = onCollide\n    this.autoStep = !!autoStep\n    this.airDrag = -1   // overrides global airDrag when >= 0\n    this.fluidDrag = -1 // overrides global fluidDrag when >= 0\n    this.onStep = null\n    \n    // internals\n    this.velocity = vec3.create()\n    this.resting = [0, 0, 0]\n    this.inFluid = false\n    this._ratioInFluid = 0\n    this._forces = vec3.create()\n    this._impulses = vec3.create()\n    this._sleepFrameCount = 10 | 0\n}\n\nRigidBody.prototype.setPosition = function (p) {\n    sanityCheck(p)\n    vec3.subtract(p, p, this.aabb.base)\n    this.aabb.translate(p)\n    this._markActive()\n}\nRigidBody.prototype.getPosition = function () {\n    return vec3.clone(this.aabb.base)\n}\nRigidBody.prototype.applyForce = function (f) {\n    sanityCheck(f)\n    vec3.add(this._forces, this._forces, f)\n    this._markActive()\n}\nRigidBody.prototype.applyImpulse = function (i) {\n    sanityCheck(i)\n    vec3.add(this._impulses, this._impulses, i)\n    this._markActive()\n}\nRigidBody.prototype._markActive = function () {\n    this._sleepFrameCount = 10 | 0\n}\n\n\n\n// temp\nRigidBody.prototype.atRestX = function () { return this.resting[0] }\nRigidBody.prototype.atRestY = function () { return this.resting[1] }\nRigidBody.prototype.atRestZ = function () { return this.resting[2] }\n\n\n\n\n\nvar sanityCheck = function () { }\nif (DEBUG) sanityCheck = function (v) {\n    if (isNaN(vec3.length(v))) throw 'Vector with NAN: ', v\n}\n\n\n//# sourceURL=webpack:///./node_modules/voxel-physics-engine/src/rigidBody.js?");
+
+/***/ }),
+
 /***/ "./server.js":
 /*!*******************!*\
   !*** ./server.js ***!
@@ -129,7 +682,7 @@ eval("__webpack_require__.r(__webpack_exports__);\nconst Defs = {\n  PORT: 50788
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return MasterCore; });\n/* harmony import */ var _entities_EntityTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./entities/EntityTypes */ \"./src/entities/EntityTypes.js\");\n/* harmony import */ var _entities_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entities/PhysicsEntity */ \"./src/entities/PhysicsEntity.js\");\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Defs */ \"./src/Defs.js\");\n/* harmony import */ var _network_MasterServer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./network/MasterServer */ \"./src/network/MasterServer.js\");\n/* harmony import */ var _network_plugins_master_MasterCorePlugin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./network/plugins/master/MasterCorePlugin */ \"./src/network/plugins/master/MasterCorePlugin.js\");\n/* harmony import */ var _network_plugins_master_EntityPlugin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./network/plugins/master/EntityPlugin */ \"./src/network/plugins/master/EntityPlugin.js\");\n/* harmony import */ var _network_plugins_master_WorldPlugin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./network/plugins/master/WorldPlugin */ \"./src/network/plugins/master/WorldPlugin.js\");\n/* harmony import */ var _network_plugins_master_ChatPlugin__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./network/plugins/master/ChatPlugin */ \"./src/network/plugins/master/ChatPlugin.js\");\n/* harmony import */ var _world_WorldPhysics__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./world/WorldPhysics */ \"./src/world/WorldPhysics.js\");\n/* harmony import */ var _world_WorldStore__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./world/WorldStore */ \"./src/world/WorldStore.js\");\n/* harmony import */ var _world_ChunkManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./world/ChunkManager */ \"./src/world/ChunkManager.js\");\n/* harmony import */ var _world_DbChunkLoader__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./world/DbChunkLoader */ \"./src/world/DbChunkLoader.js\");\n\n\n\n\n\n\n\n\n\n\n\n\nclass MasterCore {\n  constructor(worldInterface) {\n    this.physics = new _world_WorldPhysics__WEBPACK_IMPORTED_MODULE_8__[\"default\"]();\n    let worldStore = new _world_WorldStore__WEBPACK_IMPORTED_MODULE_9__[\"default\"]();\n    this.chunkManager = new _world_ChunkManager__WEBPACK_IMPORTED_MODULE_10__[\"default\"](worldInterface, this.physics, new _world_DbChunkLoader__WEBPACK_IMPORTED_MODULE_11__[\"default\"](worldInterface, worldStore));\n    this.server = new _network_MasterServer__WEBPACK_IMPORTED_MODULE_3__[\"default\"]();\n    this.masterCorePlugin = new _network_plugins_master_MasterCorePlugin__WEBPACK_IMPORTED_MODULE_4__[\"default\"](this);\n    this.entities = new _network_plugins_master_EntityPlugin__WEBPACK_IMPORTED_MODULE_5__[\"default\"](e => this.onCreateEntity(e), e => this.onDeleteEntity(e));\n    this.world = new _network_plugins_master_WorldPlugin__WEBPACK_IMPORTED_MODULE_6__[\"default\"](this.chunkManager, worldStore);\n    this.chat = new _network_plugins_master_ChatPlugin__WEBPACK_IMPORTED_MODULE_7__[\"default\"](this);\n    this.server.addPlugin(this.masterCorePlugin);\n    this.server.addPlugin(this.entities);\n    this.server.addPlugin(this.world);\n    this.server.addPlugin(this.chat);\n    this.server.init();\n  }\n\n  onCreateEntity(entity) {\n    if (entity instanceof _entities_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__[\"default\"]) {\n      this.physics.addBody(entity.body);\n    }\n  }\n\n  onDeleteEntity(entity) {\n    if (entity instanceof _entities_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__[\"default\"]) {\n      this.physics.removeBody(entity.body);\n    }\n  }\n\n  start() {\n    this.lastUpdate = Date.now();\n    this.updateInterval = setInterval(() => this.update(Date.now()), 50);\n  }\n\n  update(now) {\n    let delta = now - this.lastUpdate;\n    this.lastUpdate = now;\n    this.physics.update(now);\n    this.entities.update();\n    this.entities.sendUpdates();\n    this.masterCorePlugin.update();\n  }\n\n}\n\n//# sourceURL=webpack:///./src/MasterCore.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return MasterCore; });\n/* harmony import */ var _entities_EntityTypes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./entities/EntityTypes */ \"./src/entities/EntityTypes.js\");\n/* harmony import */ var _entities_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entities/PhysicsEntity */ \"./src/entities/PhysicsEntity.js\");\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Defs */ \"./src/Defs.js\");\n/* harmony import */ var _network_MasterServer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./network/MasterServer */ \"./src/network/MasterServer.js\");\n/* harmony import */ var _network_plugins_master_MasterCorePlugin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./network/plugins/master/MasterCorePlugin */ \"./src/network/plugins/master/MasterCorePlugin.js\");\n/* harmony import */ var _network_plugins_master_EntityPlugin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./network/plugins/master/EntityPlugin */ \"./src/network/plugins/master/EntityPlugin.js\");\n/* harmony import */ var _network_plugins_master_WorldPlugin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./network/plugins/master/WorldPlugin */ \"./src/network/plugins/master/WorldPlugin.js\");\n/* harmony import */ var _network_plugins_master_ChatPlugin__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./network/plugins/master/ChatPlugin */ \"./src/network/plugins/master/ChatPlugin.js\");\n/* harmony import */ var _world_WorldVoxelPhysics__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./world/WorldVoxelPhysics */ \"./src/world/WorldVoxelPhysics.js\");\n/* harmony import */ var _world_WorldStore__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./world/WorldStore */ \"./src/world/WorldStore.js\");\n/* harmony import */ var _world_ChunkManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./world/ChunkManager */ \"./src/world/ChunkManager.js\");\n/* harmony import */ var _world_DbChunkLoader__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./world/DbChunkLoader */ \"./src/world/DbChunkLoader.js\");\n\n\n\n\n\n\n\n\n\n\n\n\nclass MasterCore {\n  constructor(worldInterface) {\n    let worldStore = new _world_WorldStore__WEBPACK_IMPORTED_MODULE_9__[\"default\"]();\n    this.chunkManager = new _world_ChunkManager__WEBPACK_IMPORTED_MODULE_10__[\"default\"](worldInterface, new _world_DbChunkLoader__WEBPACK_IMPORTED_MODULE_11__[\"default\"](worldInterface, worldStore));\n    this.physics = new _world_WorldVoxelPhysics__WEBPACK_IMPORTED_MODULE_8__[\"default\"](this.chunkManager);\n    this.server = new _network_MasterServer__WEBPACK_IMPORTED_MODULE_3__[\"default\"]();\n    this.masterCorePlugin = new _network_plugins_master_MasterCorePlugin__WEBPACK_IMPORTED_MODULE_4__[\"default\"](this);\n    this.entities = new _network_plugins_master_EntityPlugin__WEBPACK_IMPORTED_MODULE_5__[\"default\"](e => this.onCreateEntity(e), e => this.onDeleteEntity(e));\n    this.world = new _network_plugins_master_WorldPlugin__WEBPACK_IMPORTED_MODULE_6__[\"default\"](this.chunkManager, worldStore);\n    this.chat = new _network_plugins_master_ChatPlugin__WEBPACK_IMPORTED_MODULE_7__[\"default\"](this);\n    this.server.addPlugin(this.masterCorePlugin);\n    this.server.addPlugin(this.entities);\n    this.server.addPlugin(this.world);\n    this.server.addPlugin(this.chat);\n    this.server.init();\n  }\n\n  onCreateEntity(entity) {\n    if (entity instanceof _entities_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__[\"default\"]) {\n      this.physics.phys.bodies.push(entity.body);\n    }\n  }\n\n  onDeleteEntity(entity) {\n    if (entity instanceof _entities_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__[\"default\"]) {\n      this.physics.phys.removeBody(entity.body);\n    }\n  }\n\n  start() {\n    this.lastUpdate = Date.now();\n    this.updateInterval = setInterval(() => this.update(Date.now()), 50);\n  }\n\n  update(now) {\n    let delta = now - this.lastUpdate;\n    this.lastUpdate = now;\n    this.physics.update(now);\n    this.entities.update();\n    this.entities.sendUpdates();\n    this.masterCorePlugin.update();\n  }\n\n}\n\n//# sourceURL=webpack:///./src/MasterCore.js?");
 
 /***/ }),
 
@@ -177,7 +730,7 @@ eval("__webpack_require__.r(__webpack_exports__);\nconst ENTITY_TYPES = {\n  ENT
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return PhysicsEntity; });\n/* harmony import */ var _util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/SerializedObject */ \"./src/util/SerializedObject.js\");\n/* harmony import */ var _Entity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Entity */ \"./src/entities/Entity.js\");\n/* harmony import */ var _EntityTypes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EntityTypes */ \"./src/entities/EntityTypes.js\");\n\n\n\nclass PhysicsEntity extends Object(_util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(_Entity__WEBPACK_IMPORTED_MODULE_1__[\"default\"], _EntityTypes__WEBPACK_IMPORTED_MODULE_2__[\"default\"].PHYSICS, {\n  x: 0,\n  y: 0,\n  z: 0,\n  rx: 0,\n  ry: 0,\n  rz: 0,\n  vx: 0,\n  vy: 0,\n  vz: 0\n}) {\n  constructor(data) {\n    super(data);\n    this.body = this.createBody();\n  }\n\n  createBody() {\n    /* override */\n    throw Error(\"PhysicsEntity.createBody must be overridden\");\n  }\n\n  onUpdateData() {\n    this.body.position.set(this.x, this.y, this.z);\n    this.body.velocity.set(this.vx, this.vy, this.vz);\n  }\n\n  updateFromBody() {\n    this.x = this.body.position.x;\n    this.y = this.body.position.y;\n    this.z = this.body.position.z;\n    this.vx = this.body.velocity.x;\n    this.vy = this.body.velocity.y;\n    this.vz = this.body.velocity.z;\n  }\n\n  clientUpdate() {\n    super.clientUpdate();\n    this.updateFromBody();\n  }\n\n  serverUpdate() {\n    super.serverUpdate();\n    this.updateFromBody();\n  }\n\n}\n\n//# sourceURL=webpack:///./src/entities/PhysicsEntity.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return PhysicsEntity; });\n/* harmony import */ var _util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/SerializedObject */ \"./src/util/SerializedObject.js\");\n/* harmony import */ var _Entity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Entity */ \"./src/entities/Entity.js\");\n/* harmony import */ var _EntityTypes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EntityTypes */ \"./src/entities/EntityTypes.js\");\n/* harmony import */ var gl_vec3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! gl-vec3 */ \"./node_modules/gl-vec3/index.js\");\n/* harmony import */ var gl_vec3__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(gl_vec3__WEBPACK_IMPORTED_MODULE_3__);\n\n\n\n\nclass PhysicsEntity extends Object(_util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(_Entity__WEBPACK_IMPORTED_MODULE_1__[\"default\"], _EntityTypes__WEBPACK_IMPORTED_MODULE_2__[\"default\"].PHYSICS, {\n  x: 0,\n  y: 0,\n  z: 0,\n  rx: 0,\n  ry: 0,\n  rz: 0,\n  vx: 0,\n  vy: 0,\n  vz: 0\n}) {\n  constructor(data) {\n    super(data);\n    this.body = this.createBody();\n  }\n\n  createBody() {\n    /* override */\n    throw Error(\"PhysicsEntity.createBody must be overridden\");\n  }\n\n  onUpdateData() {\n    this.body.setPosition([this.x, this.y, this.z]);\n    gl_vec3__WEBPACK_IMPORTED_MODULE_3___default.a.set(this.body.velocity, this.vx, this.vy, this.vz);\n  }\n\n  updateFromBody() {\n    this.x = this.body.getPosition()[0];\n    this.y = this.body.getPosition()[1];\n    this.z = this.body.getPosition()[2];\n    this.vx = this.body.velocity[0];\n    this.vy = this.body.velocity[1];\n    this.vz = this.body.velocity[2];\n  }\n\n  clientUpdate() {\n    super.clientUpdate();\n    this.updateFromBody();\n  }\n\n  serverUpdate() {\n    super.serverUpdate();\n    this.updateFromBody();\n  }\n\n}\n\n//# sourceURL=webpack:///./src/entities/PhysicsEntity.js?");
 
 /***/ }),
 
@@ -189,7 +742,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return Player; });\n/* harmony import */ var _util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/SerializedObject */ \"./src/util/SerializedObject.js\");\n/* harmony import */ var _PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PhysicsEntity */ \"./src/entities/PhysicsEntity.js\");\n/* harmony import */ var _EntityTypes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EntityTypes */ \"./src/entities/EntityTypes.js\");\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! cannon */ \"cannon\");\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(cannon__WEBPACK_IMPORTED_MODULE_3__);\n/* harmony import */ var _world_physicsMaterial__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../world/physicsMaterial */ \"./src/world/physicsMaterial.js\");\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n\n\n\n\n\n\nclass Player extends Object(_util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__[\"default\"], _EntityTypes__WEBPACK_IMPORTED_MODULE_2__[\"default\"].PLAYER, {\n  name: \"Nemp\",\n  currentItem: _Defs__WEBPACK_IMPORTED_MODULE_5__[\"default\"].BUILD_MODE.SINGLE\n}) {\n  constructor(data, mem) {\n    super(data, mem + 4 + 32);\n  }\n\n  createBody() {\n    let radius = 1.4;\n    let height = 4.5;\n    let segments = 15; // let shape = new CANNON.Cylinder(radius, radius, height, segments);\n\n    let shape = new cannon__WEBPACK_IMPORTED_MODULE_3___default.a.Sphere(radius); // orient cylinder along y-axis\n    // let quat = new CANNON.Quaternion();\n    // quat.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);\n    // shape.transformAllPoints(new CANNON.Vec3(0,0,0), quat);\n\n    let body = new cannon__WEBPACK_IMPORTED_MODULE_3___default.a.Body({\n      type: cannon__WEBPACK_IMPORTED_MODULE_3___default.a.Body.DYNAMIC,\n      mass: 10,\n      position: new cannon__WEBPACK_IMPORTED_MODULE_3___default.a.Vec3(this.x, this.y, this.z),\n      velocity: new cannon__WEBPACK_IMPORTED_MODULE_3___default.a.Vec3(this.vx, this.vy, this.vz),\n      shape: shape,\n      material: _world_physicsMaterial__WEBPACK_IMPORTED_MODULE_4__[\"default\"],\n      fixedRotation: true,\n      linearDamping: 0.7\n    });\n    body.addShape(new cannon__WEBPACK_IMPORTED_MODULE_3___default.a.Sphere(radius), new cannon__WEBPACK_IMPORTED_MODULE_3___default.a.Vec3(0, -height + radius, 0));\n    return body;\n  }\n\n}\n\n//# sourceURL=webpack:///./src/entities/Player.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return Player; });\n/* harmony import */ var _util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/SerializedObject */ \"./src/util/SerializedObject.js\");\n/* harmony import */ var _PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PhysicsEntity */ \"./src/entities/PhysicsEntity.js\");\n/* harmony import */ var _EntityTypes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EntityTypes */ \"./src/entities/EntityTypes.js\");\n/* harmony import */ var _node_modules_voxel_physics_engine_src_rigidBody__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../node_modules/voxel-physics-engine/src/rigidBody */ \"./node_modules/voxel-physics-engine/src/rigidBody.js\");\n/* harmony import */ var _node_modules_voxel_physics_engine_src_rigidBody__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_voxel_physics_engine_src_rigidBody__WEBPACK_IMPORTED_MODULE_3__);\n/* harmony import */ var aabb_3d__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! aabb-3d */ \"./node_modules/aabb-3d/index.js\");\n/* harmony import */ var aabb_3d__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(aabb_3d__WEBPACK_IMPORTED_MODULE_4__);\n/* harmony import */ var gl_vec3__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! gl-vec3 */ \"./node_modules/gl-vec3/index.js\");\n/* harmony import */ var gl_vec3__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(gl_vec3__WEBPACK_IMPORTED_MODULE_5__);\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n\n\n // import CANNON from 'cannon';\n// import physicsMaterial from '~/world/physicsMaterial';\n\n\n\n\n\nclass Player extends Object(_util_SerializedObject__WEBPACK_IMPORTED_MODULE_0__[\"default\"])(_PhysicsEntity__WEBPACK_IMPORTED_MODULE_1__[\"default\"], _EntityTypes__WEBPACK_IMPORTED_MODULE_2__[\"default\"].PLAYER, {\n  name: \"Nemp\",\n  currentItem: _Defs__WEBPACK_IMPORTED_MODULE_6__[\"default\"].BUILD_MODE.SINGLE\n}) {\n  constructor(data, mem) {\n    super(data, mem + 4 + 32);\n  }\n\n  createBody() {\n    let b = new _node_modules_voxel_physics_engine_src_rigidBody__WEBPACK_IMPORTED_MODULE_3___default.a(new aabb_3d__WEBPACK_IMPORTED_MODULE_4___default.a([0, 0, 0], [3, 6, 3]), 1, 1, 0, 1, () => {}, 1);\n    b.setPosition([this.x, this.y, this.z]);\n    return b; // let radius = 1.4;\n    // let height = 4.5;\n    // let segments = 15;\n    // // let shape = new CANNON.Cylinder(radius, radius, height, segments);\n    // let shape = new CANNON.Sphere(radius);\n    // // orient cylinder along y-axis\n    // // let quat = new CANNON.Quaternion();\n    // // quat.setFromAxisAngle(new CANNON.Vec3(1,0,0), -Math.PI/2);\n    // // shape.transformAllPoints(new CANNON.Vec3(0,0,0), quat);\n    // let body = new CANNON.Body({\n    //     type: CANNON.Body.DYNAMIC,\n    //     mass: 10,\n    //     position: new CANNON.Vec3(this.x, this.y, this.z),\n    //     velocity: new CANNON.Vec3(this.vx, this.vy, this.vz),\n    //     shape: shape,\n    //     material: physicsMaterial,\n    //     fixedRotation: true,\n    //     linearDamping: 0.7\n    // });\n    // body.addShape(new CANNON.Sphere(radius), new CANNON.Vec3(0, -height + radius, 0));\n    // return body;\n  }\n\n}\n\n//# sourceURL=webpack:///./src/entities/Player.js?");
 
 /***/ }),
 
@@ -345,7 +898,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ObjectPool; });\nclass ObjectPool {\n  constructor(Cls, n, ...args) {\n    this.Cls = Cls;\n    this.args = args;\n    this.objs = [];\n    this.usedObjs = [];\n\n    if (typeof n !== 'number' || n < 0) {\n      throw Error(\"n must be a number >= 0\");\n    }\n\n    for (let i = 0; i < n; i++) {\n      this._allocate();\n    }\n  }\n\n  _allocate() {\n    let obj = new this.Cls(...this.args);\n    this.objs.push(obj);\n    return obj;\n  }\n\n  init() {\n    for (let i = 0; i < this.objs.length; i++) {\n      if (this.usedObjs.indexOf(i) === -1) {\n        this.usedObjs.push(i);\n        return this.objs[i];\n      }\n    } // Didn't find an unused object, create a new one\n\n\n    this.usedObjs.push(this.objs.length);\n    return this._allocate();\n  }\n\n  free(obj) {\n    let i = this.objs.indexOf(obj);\n    if (i === -1) throw Error(\"obj not in ObjectPool\");\n    let ii = this.usedObjs.indexOf(i);\n    if (ii === -1) throw Error(\"obj is not used (invalid free)\");\n    this.usedObjs.splice(ii, 1);\n  }\n\n  freeAll() {\n    this.usedObjs = [];\n  }\n\n}\n\n//# sourceURL=webpack:///./src/util/ObjectPool.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ObjectPool; });\nclass ObjectPool {\n  constructor(Cls, n, ...args) {\n    this.Cls = Cls;\n    this.args = args;\n    this.objs = [];\n    this.usedObjs = [];\n\n    if (typeof n !== 'number' || n < 0) {\n      throw Error(\"n must be a number >= 0\");\n    }\n\n    for (let i = 0; i < n; i++) {\n      this._allocate();\n    }\n\n    throw Error(\"DON'T USE ObjectPool, ObjectPool.init FUNCTION NEEDS OPTIMIZING\");\n  }\n\n  _allocate() {\n    let obj = new this.Cls(...this.args);\n    this.objs.push(obj);\n    return obj;\n  }\n\n  init() {\n    for (let i = 0; i < this.objs.length; i++) {\n      if (this.usedObjs.indexOf(i) === -1) {\n        this.usedObjs.push(i);\n        return this.objs[i];\n      }\n    } // Didn't find an unused object, create a new one\n\n\n    this.usedObjs.push(this.objs.length);\n    return this._allocate();\n  }\n\n  free(obj) {\n    let i = this.objs.indexOf(obj);\n    if (i === -1) throw Error(\"obj not in ObjectPool\");\n    let ii = this.usedObjs.indexOf(i);\n    if (ii === -1) throw Error(\"obj is not used (invalid free)\");\n    this.usedObjs.splice(ii, 1);\n  }\n\n  freeAll() {\n    this.usedObjs = [];\n  }\n\n}\n\n//# sourceURL=webpack:///./src/util/ObjectPool.js?");
 
 /***/ }),
 
@@ -417,7 +970,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ChunkManager; });\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n/* harmony import */ var _Chunk__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Chunk */ \"./src/world/Chunk.js\");\n/* harmony import */ var _ChunkUtils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ChunkUtils */ \"./src/world/ChunkUtils.js\");\n\n\n\nclass ChunkManager {\n  constructor(worldInterface, physics, chunkLoader) {\n    this.worldInterface = worldInterface;\n    this.physics = physics;\n    this.chunkLoader = chunkLoader;\n    this.chunks = {};\n  }\n\n  containsChunk(p, q, r) {\n    return Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(p, q, r) in this.chunks;\n  }\n\n  getChunk(p, q, r) {\n    return this.chunks[Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(p, q, r)];\n  }\n\n  getChunkByChunkKey(key) {\n    return this.chunks[key];\n  }\n\n  removeChunk(chunk) {\n    if (!this.containsChunk(chunk.p, chunk.q, chunk.r)) throw Error(\"Chunk does not exist\");\n    this.chunkLoader.unloadChunk(chunk);\n\n    this._deleteChunk(chunk);\n\n    delete this.chunks[Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(chunk.p, chunk.q, chunk.r)];\n    this.physics.removeBody(chunk.body);\n    chunk.body = null;\n  }\n\n  async createChunk(p, q, r) {\n    if (this.containsChunk(p, q, r)) throw Error(\"Chunk already exists\");\n\n    let chunk = this._initChunk(p, q, r);\n\n    this.chunks[Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(p, q, r)] = chunk;\n    await this.chunkLoader.loadChunk(chunk);\n    this.physics.addBody(chunk.body);\n    return chunk;\n  }\n\n  _initChunk(p, q, r) {\n    let mem = this.worldInterface.get_unused_chunk_mem_location();\n    this.worldInterface.init_chunk(mem, p, q, r);\n    let chunk = new _Chunk__WEBPACK_IMPORTED_MODULE_1__[\"default\"]({\n      p,\n      q,\n      r\n    });\n    chunk.assignMemory(mem);\n    return chunk;\n  }\n\n  _deleteChunk(chunk) {\n    chunk.onDelete();\n    this.worldInterface.delete_chunk(chunk.getMemoryPosition());\n  }\n\n}\n\n//# sourceURL=webpack:///./src/world/ChunkManager.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return ChunkManager; });\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n/* harmony import */ var _Chunk__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Chunk */ \"./src/world/Chunk.js\");\n/* harmony import */ var _ChunkUtils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ChunkUtils */ \"./src/world/ChunkUtils.js\");\n\n\n\nclass ChunkManager {\n  constructor(worldInterface, chunkLoader) {\n    this.worldInterface = worldInterface; // this.physics = physics;\n\n    this.chunkLoader = chunkLoader;\n    this.chunks = {};\n  }\n\n  containsChunk(p, q, r) {\n    return Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(p, q, r) in this.chunks;\n  }\n\n  getChunk(p, q, r) {\n    return this.chunks[Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(p, q, r)];\n  }\n\n  getChunkByChunkKey(key) {\n    return this.chunks[key];\n  }\n\n  removeChunk(chunk) {\n    if (!this.containsChunk(chunk.p, chunk.q, chunk.r)) throw Error(\"Chunk does not exist\");\n    this.chunkLoader.unloadChunk(chunk);\n\n    this._deleteChunk(chunk);\n\n    delete this.chunks[Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(chunk.p, chunk.q, chunk.r)]; // this.physics.removeBody(chunk.body);\n\n    chunk.body = null;\n  }\n\n  async createChunk(p, q, r) {\n    if (this.containsChunk(p, q, r)) throw Error(\"Chunk already exists\");\n\n    let chunk = this._initChunk(p, q, r);\n\n    this.chunks[Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"chunkKey\"])(p, q, r)] = chunk;\n    await this.chunkLoader.loadChunk(chunk); // this.physics.addBody(chunk.body);\n\n    return chunk;\n  }\n\n  _initChunk(p, q, r) {\n    let mem = this.worldInterface.get_unused_chunk_mem_location();\n    this.worldInterface.init_chunk(mem, p, q, r);\n    let chunk = new _Chunk__WEBPACK_IMPORTED_MODULE_1__[\"default\"]({\n      p,\n      q,\n      r\n    });\n    chunk.assignMemory(mem);\n    return chunk;\n  }\n\n  _deleteChunk(chunk) {\n    chunk.onDelete();\n    this.worldInterface.delete_chunk(chunk.getMemoryPosition());\n  }\n\n}\n\n//# sourceURL=webpack:///./src/world/ChunkManager.js?");
 
 /***/ }),
 
@@ -465,19 +1018,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return WorldNarrowphase; });\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cannon */ \"cannon\");\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(cannon__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n/* harmony import */ var _ChunkUtils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ChunkUtils */ \"./src/world/ChunkUtils.js\");\n/* harmony import */ var _physicsMaterial__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./physicsMaterial */ \"./src/world/physicsMaterial.js\");\n/* harmony import */ var _BodyPool__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BodyPool */ \"./src/world/BodyPool.js\");\n\n\n\n\n\nconst halfBlockSize = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Vec3(_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].WORLD_SCALE / 2, _Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].WORLD_SCALE / 2, _Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].WORLD_SCALE / 2);\nconst blockShape = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Box(halfBlockSize);\nclass WorldNarrowphase extends cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Narrowphase {\n  constructor(...args) {\n    super(...args);\n    this.bodyPool = new _BodyPool__WEBPACK_IMPORTED_MODULE_4__[\"default\"](15, {\n      type: cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Body.STATIC,\n      mass: 0,\n      material: _physicsMaterial__WEBPACK_IMPORTED_MODULE_3__[\"default\"],\n      shape: blockShape\n    });\n    this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.SPHERE] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.COMPOUND] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.CONVEXPOLYHEDRON] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.HEIGHTFIELD] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.PARTICLE] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.CYLINDER] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.TRIMESH] = this.doChunkCollision;\n  }\n\n  chunkAABBCollision(chunkAABB, otherAABB, callback) {\n    if (chunkAABB.overlaps(otherAABB) === false) return;\n    let low = otherAABB.lowerBound;\n    let high = otherAABB.upperBound;\n\n    for (let x = Math.floor(low.x); x <= Math.ceil(high.x); x++) {\n      if (x < chunkAABB.lowerBound.x || x >= chunkAABB.upperBound.x) continue;\n\n      for (let y = Math.floor(low.y); y <= Math.ceil(high.y); y++) {\n        if (y < chunkAABB.lowerBound.y || y >= chunkAABB.upperBound.y) continue;\n\n        for (let z = Math.floor(low.z); z <= Math.ceil(high.z); z++) {\n          if (z < chunkAABB.lowerBound.z || z >= chunkAABB.upperBound.z) continue;\n          let br = callback(x, y, z);\n          if (br) return true;\n        }\n      }\n    }\n  }\n\n  doChunkCollision(si, sj, xi, xj, qi, qj, bi, bj, rsi, rsj, justTest) {\n    // console.log(bi.aabb.lowerBound);\n    let map = bj.chunk.getMap();\n    let n = [];\n    let br = this.chunkAABBCollision(bj.aabb, bi.aabb, (x, y, z) => {\n      if (Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"isBlockSolid\"])(bj.chunk.getBlock(x, y, z, map))) {\n        let blockBody = this.bodyPool.init(x, y, z);\n        n.push([x, y, z]); // override current contact material with one from material pairing w blockBody\n\n        this.currentContactMaterial = this.world.getContactMaterial(blockBody.material, bi.material) || this.currentContactMaterial; // the order of arguments is dependent on the order of types\n\n        if (cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX < si.type) {\n          return this[cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX | si.type](blockShape, si, blockBody.position, xi, blockBody.quaternion, qi, blockBody, bi, blockShape, si, justTest);\n        } else {\n          return this[cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX | si.type](si, blockShape, xi, blockBody.position, qi, blockBody.quaternion, bi, blockBody, si, blockShape, justTest);\n        }\n      }\n    }); //console.log(n.length);\n\n    if (br && justTest) return true;\n  }\n\n  postStep() {\n    this.bodyPool.freeAll();\n  }\n\n}\n\n//# sourceURL=webpack:///./src/world/WorldNarrowphase.js?");
-
-/***/ }),
-
-/***/ "./src/world/WorldPhysics.js":
-/*!***********************************!*\
-  !*** ./src/world/WorldPhysics.js ***!
-  \***********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return WorldPhysics; });\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cannon */ \"cannon\");\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(cannon__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n/* harmony import */ var _WorldNarrowphase__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./WorldNarrowphase */ \"./src/world/WorldNarrowphase.js\");\n/* harmony import */ var _physicsMaterial__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./physicsMaterial */ \"./src/world/physicsMaterial.js\");\n\n\n\n\nclass WorldPhysics extends cannon__WEBPACK_IMPORTED_MODULE_0___default.a.World {\n  constructor() {\n    super(...arguments);\n    this.quatNormalizeSkip = 0;\n    this.quatNormalizeFast = false;\n    this.doProfiling = false;\n    let solver = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.GSSolver();\n    this.defaultContactMaterial.contactEquationStiffness = 1e9;\n    this.defaultContactMaterial.contactEquationRelaxation = 4;\n    solver.iterations = 7;\n    solver.tolerance = 0.1;\n    this.solver = solver; //this.solver = new CANNON.SplitSolver(solver);\n\n    this.broadphase = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.NaiveBroadphase();\n    this.broadphase.useBoundingBoxes = true;\n    this.narrowphase = new _WorldNarrowphase__WEBPACK_IMPORTED_MODULE_2__[\"default\"](this);\n    this.timeStep = 1 / _Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].PHYSICS_STEP_FREQUENCY;\n    this.lastUpdate = 0;\n    this.gravity.set(0, -2, 0); // m/s^2\n\n    let physicsContactMaterial = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.ContactMaterial(_physicsMaterial__WEBPACK_IMPORTED_MODULE_3__[\"default\"], _physicsMaterial__WEBPACK_IMPORTED_MODULE_3__[\"default\"], {\n      friction: 0.0,\n      restitution: 0.1\n    });\n    this.addContactMaterial(physicsContactMaterial); // let box = new CANNON.Body({\n    //     type: CANNON.Body.STATIC,\n    //     material: physicsMaterial,\n    //     shape: new CANNON.Box(new CANNON.Vec3(Defs.WORLD_SCALE, Defs.WORLD_SCALE, Defs.WORLD_SCALE)),\n    //     position: new CANNON.Vec3(-2, 16, -2)\n    // });\n    // this.addBody(box);\n  } // updateBounds(aabbMin, aabbMax) {\n  //     this.broadphase\n  // }\n\n\n  update(now) {\n    let start = Date.now();\n\n    if (this.lastUpdate === 0) {\n      this.step(this.timeStep);\n    } else {\n      let delta = now - this.lastUpdate;\n\n      if (delta >= 0) {\n        this.step(this.timeStep, delta, _Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].PHYSICS_MAX_SUB_STEPS);\n      }\n    } // console.log(this.profile);\n\n\n    this.lastUpdate = now;\n    this.narrowphase.postStep();\n  }\n\n}\n\n//# sourceURL=webpack:///./src/world/WorldPhysics.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return WorldNarrowphase; });\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cannon */ \"cannon\");\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(cannon__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n/* harmony import */ var _ChunkUtils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ChunkUtils */ \"./src/world/ChunkUtils.js\");\n/* harmony import */ var _physicsMaterial__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./physicsMaterial */ \"./src/world/physicsMaterial.js\");\n/* harmony import */ var _BodyPool__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BodyPool */ \"./src/world/BodyPool.js\");\n\n\n\n\n\nconst halfBlockSize = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Vec3(_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].WORLD_SCALE / 2, _Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].WORLD_SCALE / 2, _Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].WORLD_SCALE / 2);\nconst blockShape = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Box(halfBlockSize);\nclass WorldNarrowphase extends cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Narrowphase {\n  constructor(...args) {\n    super(...args); // this.bodyPool = new BodyPool(15, {\n    //     type: CANNON.Body.STATIC,\n    //     mass: 0,\n    //     material: physicsMaterial,\n    //     shape: blockShape\n    // });\n\n    this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.SPHERE] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.COMPOUND] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.CONVEXPOLYHEDRON] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.HEIGHTFIELD] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.PARTICLE] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.CYLINDER] = this[_Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].SHAPE_TYPE_CHUNK | cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.TRIMESH] = this.doChunkCollision;\n  }\n\n  chunkAABBCollision(chunkAABB, otherAABB, callback) {\n    if (chunkAABB.overlaps(otherAABB) === false) return;\n    let low = otherAABB.lowerBound;\n    let high = otherAABB.upperBound;\n\n    for (let x = Math.floor(low.x); x <= Math.ceil(high.x); x++) {\n      if (x < chunkAABB.lowerBound.x || x >= chunkAABB.upperBound.x) continue;\n\n      for (let y = Math.floor(low.y); y <= Math.ceil(high.y); y++) {\n        if (y < chunkAABB.lowerBound.y || y >= chunkAABB.upperBound.y) continue;\n\n        for (let z = Math.floor(low.z); z <= Math.ceil(high.z); z++) {\n          if (z < chunkAABB.lowerBound.z || z >= chunkAABB.upperBound.z) continue;\n          let br = callback(x, y, z);\n          if (br) return true;\n        }\n      }\n    }\n  }\n\n  doChunkCollision(si, sj, xi, xj, qi, qj, bi, bj, rsi, rsj, justTest) {\n    // console.log(bi.aabb.lowerBound);\n    let map = bj.chunk.getMap();\n    let n = [];\n    let br = this.chunkAABBCollision(bj.aabb, bi.aabb, (x, y, z) => {\n      if (Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_2__[\"isBlockSolid\"])(bj.chunk.getBlock(x, y, z, map))) {\n        //let blockBody = this.bodyPool.init(x, y, z);\n        let blockBody = new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Body({\n          type: cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Body.STATIC,\n          mass: 0,\n          material: _physicsMaterial__WEBPACK_IMPORTED_MODULE_3__[\"default\"],\n          shape: blockShape,\n          position: new cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Vec3(x, y, z)\n        });\n        n.push([x, y, z]); // override current contact material with one from material pairing w blockBody\n\n        this.currentContactMaterial = this.world.getContactMaterial(blockBody.material, bi.material) || this.currentContactMaterial; // the order of arguments is dependent on the order of types\n\n        if (cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX < si.type) {\n          return this[cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX | si.type](blockShape, si, blockBody.position, xi, blockBody.quaternion, qi, blockBody, bi, blockShape, si, justTest);\n        } else {\n          return this[cannon__WEBPACK_IMPORTED_MODULE_0___default.a.Shape.types.BOX | si.type](si, blockShape, xi, blockBody.position, qi, blockBody.quaternion, bi, blockBody, si, blockShape, justTest);\n        }\n      }\n    }); //console.log(n.length);\n\n    if (br && justTest) return true;\n  }\n\n  postStep() {// this.bodyPool.freeAll();\n  }\n\n}\n\n//# sourceURL=webpack:///./src/world/WorldNarrowphase.js?");
 
 /***/ }),
 
@@ -490,6 +1031,18 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 
 "use strict";
 eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return WorldStore; });\n/* harmony import */ var sqlite3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sqlite3 */ \"sqlite3\");\n/* harmony import */ var sqlite3__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sqlite3__WEBPACK_IMPORTED_MODULE_0__);\n\n\nconst _sqlite3 = sqlite3__WEBPACK_IMPORTED_MODULE_0___default.a.verbose();\n\nclass WorldStore {\n  constructor(dbName = ':memory:') {\n    this.db = new _sqlite3.Database(dbName, err => {\n      if (err) throw err;\n    });\n    this.createDb();\n  }\n\n  createDb() {\n    this.db.exec(`\n            CREATE TABLE Chunks (\n                p INTEGER,\n                q INTEGER,\n                r INTEGER,\n                map BLOB,\n                PRIMARY KEY (p, q, r)\n            );\n            `, err => {\n      if (err) throw err;\n    });\n  }\n\n  containsChunk(p, q, r) {\n    return new Promise((resolve, reject) => {\n      this.db.get(`SELECT EXISTS(SELECT 1 FROM Chunks WHERE p = ? AND q = ? AND r = ?) AS 'Exists'`, p, q, r, (err, result) => {\n        if (err) reject(err);else resolve(result['Exists'] === 1);\n      });\n    });\n  }\n\n  loadChunk(p, q, r) {\n    return new Promise((resolve, reject) => {\n      this.db.get(`SELECT * FROM Chunks WHERE p = ? AND q = ? AND r = ?`, p, q, r, (err, chunk) => {\n        if (err) reject(err);else resolve(chunk);\n      });\n    });\n  }\n\n  saveChunk({\n    p,\n    q,\n    r,\n    map\n  }) {\n    this.db.run(`\n            INSERT INTO Chunks (p, q, r, map)\n                VALUES ($p, $q, $r, $map)\n                ON CONFLICT(p, q, r) DO UPDATE SET map=$map;`, {\n      $p: p,\n      $q: q,\n      $r: r,\n      $map: new Buffer(map)\n    }, err => {\n      if (err) throw err;\n      console.log(\"Saved chunk\");\n    });\n  }\n\n}\n\n//# sourceURL=webpack:///./src/world/WorldStore.js?");
+
+/***/ }),
+
+/***/ "./src/world/WorldVoxelPhysics.js":
+/*!****************************************!*\
+  !*** ./src/world/WorldVoxelPhysics.js ***!
+  \****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"default\", function() { return WorldVoxelPhysics; });\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cannon */ \"cannon\");\n/* harmony import */ var cannon__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(cannon__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _Defs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Defs */ \"./src/Defs.js\");\n/* harmony import */ var _WorldNarrowphase__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./WorldNarrowphase */ \"./src/world/WorldNarrowphase.js\");\n/* harmony import */ var _physicsMaterial__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./physicsMaterial */ \"./src/world/physicsMaterial.js\");\n/* harmony import */ var voxel_physics_engine__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! voxel-physics-engine */ \"./node_modules/voxel-physics-engine/src/index.js\");\n/* harmony import */ var voxel_physics_engine__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(voxel_physics_engine__WEBPACK_IMPORTED_MODULE_4__);\n/* harmony import */ var _ChunkUtils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ChunkUtils */ \"./src/world/ChunkUtils.js\");\n\n\n\n\n\n\nclass WorldVoxelPhysics {\n  constructor(chunkManager) {\n    this.lastUpdate = 0;\n    this.timeStep = 1 / _Defs__WEBPACK_IMPORTED_MODULE_1__[\"default\"].PHYSICS_STEP_FREQUENCY;\n    this.phys = voxel_physics_engine__WEBPACK_IMPORTED_MODULE_4___default()({\n      gravity: [0, -10, 0]\n    }, (x, y, z) => {\n      let chunk = chunkManager.getChunk(Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_5__[\"chunked\"])(x), Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_5__[\"chunked\"])(z), Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_5__[\"chunked\"])(y));\n      if (!chunk) return true;\n      return Object(_ChunkUtils__WEBPACK_IMPORTED_MODULE_5__[\"isBlockSolid\"])(chunk.getBlock(x, y, z));\n    }, (x, y, z) => false);\n  }\n\n  addBody() {\n    this.phys.addBody(...arguments);\n  }\n\n  update(now) {\n    let start = Date.now();\n\n    if (this.lastUpdate === 0) {\n      this.phys.tick(this.timeStep);\n    } else {\n      let delta = now - this.lastUpdate;\n\n      if (delta >= 0) {\n        this.phys.tick(delta);\n      }\n    }\n\n    this.lastUpdate = now;\n  }\n\n}\n\n//# sourceURL=webpack:///./src/world/WorldVoxelPhysics.js?");
 
 /***/ }),
 

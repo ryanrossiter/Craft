@@ -10,12 +10,12 @@ const blockShape = new CANNON.Box(halfBlockSize);
 export default class WorldNarrowphase extends CANNON.Narrowphase {
     constructor(...args) {
         super(...args);
-        this.bodyPool = new BodyPool(15, {
-            type: CANNON.Body.STATIC,
-            mass: 0,
-            material: physicsMaterial,
-            shape: blockShape
-        });
+        // this.bodyPool = new BodyPool(15, {
+        //     type: CANNON.Body.STATIC,
+        //     mass: 0,
+        //     material: physicsMaterial,
+        //     shape: blockShape
+        // });
 
         this[Defs.SHAPE_TYPE_CHUNK | CANNON.Shape.types.SPHERE] =
         this[Defs.SHAPE_TYPE_CHUNK | CANNON.Shape.types.BOX] =
@@ -54,7 +54,15 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
         let n = [];
         let br = this.chunkAABBCollision(bj.aabb, bi.aabb, (x, y, z) => {
             if (isBlockSolid(bj.chunk.getBlock(x, y, z, map))) {
-                let blockBody = this.bodyPool.init(x, y, z);
+                //let blockBody = this.bodyPool.init(x, y, z);
+                let blockBody = new CANNON.Body({
+                    type: CANNON.Body.STATIC,
+                    mass: 0,
+                    material: physicsMaterial,
+                    shape: blockShape,
+                    position: new CANNON.Vec3(x, y, z),
+                });
+
                 n.push([x,y,z]);
                 // override current contact material with one from material pairing w blockBody
                 this.currentContactMaterial = this.world.getContactMaterial(blockBody.material, bi.material)
@@ -86,6 +94,6 @@ export default class WorldNarrowphase extends CANNON.Narrowphase {
     }
 
     postStep() {
-        this.bodyPool.freeAll();
+        // this.bodyPool.freeAll();
     }
 }

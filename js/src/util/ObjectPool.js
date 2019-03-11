@@ -12,6 +12,8 @@ export default class ObjectPool {
 		for (let i = 0; i < n; i++) {
 			this._allocate();
 		}
+
+		throw Error("DON'T USE ObjectPool, ObjectPool.init FUNCTION NEEDS OPTIMIZING");
 	}
 
 	_allocate() {

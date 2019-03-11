@@ -1,6 +1,7 @@
 import SerializedObject from '~/util/SerializedObject';
 import Entity from '~/entities/Entity';
 import EntityTypes from '~/entities/EntityTypes';
+import vec3 from 'gl-vec3'
 
 export default class PhysicsEntity extends SerializedObject(Entity,
     EntityTypes.PHYSICS, {
@@ -20,17 +21,17 @@ export default class PhysicsEntity extends SerializedObject(Entity,
     }
 
     onUpdateData() {
-        this.body.position.set(this.x, this.y, this.z);
-        this.body.velocity.set(this.vx, this.vy, this.vz);
+        this.body.setPosition([this.x, this.y, this.z]);
+        vec3.set(this.body.velocity, this.vx, this.vy, this.vz);
     }
 
     updateFromBody() {
-        this.x = this.body.position.x;
-        this.y = this.body.position.y;
-        this.z = this.body.position.z;
-        this.vx = this.body.velocity.x;
-        this.vy = this.body.velocity.y;
-        this.vz = this.body.velocity.z;
+        this.x = this.body.getPosition()[0];
+        this.y = this.body.getPosition()[1];
+        this.z = this.body.getPosition()[2];
+        this.vx = this.body.velocity[0];
+        this.vy = this.body.velocity[1];
+        this.vz = this.body.velocity[2];
     }
 
     clientUpdate() {

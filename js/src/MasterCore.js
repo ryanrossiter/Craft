@@ -8,19 +8,19 @@ import EntityPlugin from '~/network/plugins/master/EntityPlugin';
 import WorldPlugin from '~/network/plugins/master/WorldPlugin';
 import ChatPlugin from '~/network/plugins/master/ChatPlugin';
 
-import WorldPhysics from '~/world/WorldPhysics';
+import WorldVoxelPhysics from '~/world/WorldVoxelPhysics';
 import WorldStore from '~/world/WorldStore';
 import ChunkManager from '~/world/ChunkManager';
 import DbChunkLoader from '~/world/DbChunkLoader';
 
 export default class MasterCore {
     constructor(worldInterface) {
-        this.physics = new WorldPhysics();
 
         let worldStore = new WorldStore();
-        this.chunkManager = new ChunkManager(worldInterface, this.physics,
+        this.chunkManager = new ChunkManager(worldInterface,
             new DbChunkLoader(worldInterface, worldStore)
         );
+        this.physics = new WorldVoxelPhysics(this.chunkManager);
 
         this.server = new MasterServer();
         this.masterCorePlugin = new MasterCorePlugin(this);
@@ -39,13 +39,13 @@ export default class MasterCore {
 
     onCreateEntity(entity) {
         if (entity instanceof PhysicsEntity) {
-            this.physics.addBody(entity.body);
+            this.physics.phys.bodies.push(entity.body);
         }
     }
 
     onDeleteEntity(entity) {
         if (entity instanceof PhysicsEntity) {
-            this.physics.removeBody(entity.body);
+            this.physics.phys.removeBody(entity.body);
         }
     }
 
@@ -57,7 +57,7 @@ export default class MasterCore {
     update(now) {
         let delta = now - this.lastUpdate;
         this.lastUpdate = now;
-
+        
         this.physics.update(now);
         this.entities.update();
         this.entities.sendUpdates();

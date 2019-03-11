@@ -13,7 +13,7 @@ import ChatPlugin from '~/network/plugins/client/ChatPlugin';
 
 import ClientChunkManager from '~/world/ClientChunkManager';
 import NetChunkLoader from '~/world/NetChunkLoader';
-import WorldPhysics from '~/world/WorldPhysics';
+import WorldVoxelPhysics from '~/world/WorldVoxelPhysics';
 // import GenChunkLoader from '~/world/GenChunkLoader';
 import { chunked } from '~/world/ChunkUtils';
 
@@ -28,12 +28,11 @@ export default class ClientCore {
             playerId: undefined
         };
 
-        this.physics = new WorldPhysics();
-
         this.model = new ClientModel();
         this.model.assignMemory(this.controlInterface.get_model_mem_location());
         this.playerController = null;
         this.chunkManager = null;
+        this.physics = null;
 
         this.server = new ClientServer();
         this.clientCorePlugin = new ClientCorePlugin(this);
@@ -57,10 +56,11 @@ export default class ClientCore {
 
     onJoin(playerId) {
         this.state.playerId = playerId;
-        this.chunkManager = new ClientChunkManager(this.worldInterface, this.physics,
+        this.chunkManager = new ClientChunkManager(this.worldInterface,
             new NetChunkLoader(this.world)
             // new GenChunkLoader(this.worldInterface)
         );
+        this.physics = new WorldVoxelPhysics(this.chunkManager);
         console.log("Joined server.");
     }
 
@@ -80,13 +80,13 @@ export default class ClientCore {
         }
 
         if (entity instanceof PhysicsEntity) {
-            this.physics.addBody(entity.body);
+            this.physics.phys.bodies.push(entity.body);
         }
     }
 
     onDeleteEntity(entity) {
         if (entity instanceof PhysicsEntity) {
-            this.physics.removeBody(entity.body);
+            this.physics.phys.removeBody(entity.body);
         }
     }
 
